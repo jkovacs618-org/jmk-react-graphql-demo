@@ -1,0 +1,36 @@
+.nav-link {
+    @apply
+    px-3
+    py-2
+    rounded
+    text-sm
+    font-medium
+    text-slate-300
+    hover:bg-slate-700
+    hover:text-white
+    no-underline
+    transition;
+}
+
+a.nav-link.active {
+    @apply
+    bg-white
+    text-slate-900;
+}
+
+.slide-pane__content {
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+}
+
+div.side-menu-link > a > div {
+    @apply border-l-4 border-transparent
+}
+
+div.side-menu-link > a.active > div {
+    @apply border-sky-300 bg-sky-50;
+}
+
+div.side-menu-link:hover > a:not(.active) > div {
+    @apply border-sky-50 bg-sky-50;
+}
