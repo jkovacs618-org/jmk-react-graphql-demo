@@ -1,0 +1,270 @@
+// Use `yarn prisma format` to format file and generate related fields.
+// Changes require a DB migration: `yarn prisma migrate dev` then `yarn prisma generate`.
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Account {
+  id             Int              @id @default(autoincrement())
+  externalId     String           @default("")
+  accountNumber  String?
+  accountType    String?
+  status         String?          @default("Active")
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  deleted        Boolean          @default(false)
+  Person         Person[]
+  Calendar       Calendar[]
+  Event          Event[]
+  ServiceAccount ServiceAccount[]
+  Note           Note[]
+  Tag            Tag[]
+  users          User[]
+  Organization   Organization[]
+  ServiceType    ServiceType[]
+}
+
+model User {
+  id             Int              @id @default(autoincrement())
+  externalId     String           @default("")
+  accountId      Int
+  account        Account          @relation(fields: [accountId], references: [id])
+  personId       Int?             @unique
+  person         Person?          @relation("personSelf", fields: [personId], references: [id])
+  nameFirst      String
+  nameLast       String
+  email          String           @unique
+  password       String?
+  status         String?          @default("Active")
+  createdUserId  Int?             @unique
+  createdUser    User?            @relation("createdUser", fields: [createdUserId], references: [id])
+  user           User?            @relation("createdUser")
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @default(now()) @updatedAt
+  deleted        Boolean          @default(false)
+  deletedAt      DateTime?
+  timeZone       String?          @default("")
+  Person         Person[]
+  Calendar       Calendar[]
+  Event          Event[]
+  ServiceAccount ServiceAccount[]
+  Note           Note[]
+  Tag            Tag[]
+  ServiceTag     ServiceTag[]
+  EventTag       EventTag[]
+  Organization   Organization[]
+  ServiceType    ServiceType[]
+}
+
+model Person {
+  id                  Int                  @id @default(autoincrement())
+  externalId          String               @default("")
+  accountId           Int
+  account             Account              @relation(fields: [accountId], references: [id])
+  nameFirst           String
+  nameMiddle          String?
+  nameLast            String?
+  suffix              String?
+  gender              String?
+  maritalStatus       String?
+  birthDate           DateTime?
+  deathDate           DateTime?
+  createdAt           DateTime             @default(now())
+  createdUserId       Int?
+  createdUser         User?                @relation(fields: [createdUserId], references: [id])
+  updatedAt           DateTime             @updatedAt
+  deleted             Boolean              @default(false)
+  deletedAt           DateTime?
+  users               User?                @relation("personSelf")
+  personRelatioships1 PersonRelationship[] @relation("personRelatioship1")
+  personRelatioships2 PersonRelationship[] @relation("personRelatioship2")
+}
+
+model PersonRelationship {
+  id        Int       @id @default(autoincrement())
+  person1Id Int
+  person1   Person    @relation("personRelatioship1", fields: [person1Id], references: [id])
+  person2Id Int
+  person2   Person    @relation("personRelatioship2", fields: [person2Id], references: [id])
+  type      String
+  otherType String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deleted   Boolean   @default(false)
+  deletedAt DateTime?
+}
+
+model Calendar {
+  id            Int       @id @default(autoincrement())
+  externalId    String    @default("")
+  accountId     Int
+  account       Account   @relation(fields: [accountId], references: [id])
+  title         String
+  status        String?   @default("Active")
+  isDefault     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  createdUserId Int?
+  createdUser   User?     @relation(fields: [createdUserId], references: [id])
+  updatedAt     DateTime  @updatedAt
+  deleted       Boolean   @default(false)
+  deletedAt     DateTime?
+  events        Event[]
+}
+
+model Event {
+  id            Int        @id @default(autoincrement())
+  externalId    String     @default("")
+  accountId     Int
+  account       Account    @relation(fields: [accountId], references: [id])
+  calendarId    Int?
+  calendar      Calendar?  @relation(fields: [calendarId], references: [id])
+  title         String
+  location      String?
+  startDate     DateTime?
+  endDate       DateTime?
+  createdAt     DateTime   @default(now())
+  createdUserId Int?
+  createdUser   User?      @relation(fields: [createdUserId], references: [id])
+  updatedAt     DateTime   @updatedAt
+  deleted       Boolean    @default(false)
+  deletedAt     DateTime?
+  Note          Note[]
+  EventTag      EventTag[]
+}
+
+model Organization {
+  id             Int              @id @default(autoincrement())
+  externalId     String           @default("")
+  accountId      Int
+  account        Account          @relation(fields: [accountId], references: [id])
+  name           String
+  type           String?
+  industry       String?
+  website        String?
+  status         String?          @default("Active")
+  createdAt      DateTime         @default(now())
+  createdUserId  Int?
+  createdUser    User?            @relation(fields: [createdUserId], references: [id])
+  updatedAt      DateTime         @updatedAt
+  deleted        Boolean          @default(false)
+  deletedAt      DateTime?
+  ServiceAccount ServiceAccount[]
+}
+
+model ServiceType {
+  id             Int              @id @default(autoincrement())
+  externalId     String           @default("")
+  accountId      Int
+  account        Account          @relation(fields: [accountId], references: [id])
+  name           String
+  status         String?          @default("Active")
+  createdAt      DateTime         @default(now())
+  createdUserId  Int?
+  createdUser    User?            @relation(fields: [createdUserId], references: [id])
+  updatedAt      DateTime         @updatedAt
+  deleted        Boolean          @default(false)
+  deletedAt      DateTime?
+  ServiceAccount ServiceAccount[]
+}
+
+model ServiceAccount {
+  id             Int           @id @default(autoincrement())
+  externalId     String        @default("")
+  accountId      Int
+  account        Account       @relation(fields: [accountId], references: [id])
+  organizationId Int?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  serviceTypeId  Int?
+  serviceType    ServiceType?  @relation(fields: [serviceTypeId], references: [id])
+  description    String?
+  accountNumber  String?
+  status         String?       @default("Active")
+  startDate      DateTime?
+  endDate        DateTime?
+  website        String?
+  email          String?
+  username       String?
+  createdAt      DateTime      @default(now())
+  createdUserId  Int?
+  createdUser    User?         @relation(fields: [createdUserId], references: [id])
+  updatedAt      DateTime      @updatedAt
+  deleted        Boolean       @default(false)
+  deletedAt      DateTime?
+  ServiceTag     ServiceTag[]
+  Note           Note[]
+}
+
+model Note {
+  id               Int             @id @default(autoincrement())
+  externalId       String          @default("")
+  accountId        Int
+  account          Account         @relation(fields: [accountId], references: [id])
+  refType          String?
+  refId            Int?
+  eventId          Int?
+  event            Event?          @relation(fields: [eventId], references: [id])
+  serviceAccountId Int?
+  serviceAccount   ServiceAccount? @relation(fields: [serviceAccountId], references: [id])
+  title            String?
+  createdAt        DateTime        @default(now())
+  createdUserId    Int?
+  createdUser      User?           @relation(fields: [createdUserId], references: [id])
+  updatedAt        DateTime        @updatedAt
+  deleted          Boolean         @default(false)
+  deletedAt        DateTime?
+  contents         String?
+}
+
+model Tag {
+  id            Int          @id @default(autoincrement())
+  externalId    String       @default("")
+  accountId     Int
+  account       Account      @relation(fields: [accountId], references: [id])
+  title         String
+  createdAt     DateTime     @default(now())
+  createdUserId Int?
+  createdUser   User?        @relation(fields: [createdUserId], references: [id])
+  updatedAt     DateTime     @updatedAt
+  deleted       Boolean      @default(false)
+  deletedAt     DateTime?
+  ServiceTag    ServiceTag[]
+  EventTag      EventTag[]
+}
+
+model EventTag {
+  id            Int       @id @default(autoincrement())
+  eventId       Int?
+  event         Event?    @relation(fields: [eventId], references: [id])
+  tagId         Int?
+  tag           Tag?      @relation(fields: [tagId], references: [id])
+  createdAt     DateTime  @default(now())
+  createdUserId Int?
+  createdUser   User?     @relation(fields: [createdUserId], references: [id])
+  deleted       Boolean   @default(false)
+  deletedAt     DateTime?
+
+  // https://www.prisma.io/docs/orm/more/help-and-troubleshooting/help-articles/working-with-many-to-many-relations#explicit-relations
+  @@index([eventId, tagId])
+}
+
+model ServiceTag {
+  id               Int             @id @default(autoincrement())
+  serviceAccountId Int?
+  serviceAccount   ServiceAccount? @relation(fields: [serviceAccountId], references: [id])
+  tagId            Int?
+  tag              Tag?            @relation(fields: [tagId], references: [id])
+  createdAt        DateTime        @default(now())
+  createdUserId    Int?
+  createdUser      User?           @relation(fields: [createdUserId], references: [id])
+  deleted          Boolean         @default(false)
+  deletedAt        DateTime?
+
+  // https://www.prisma.io/docs/orm/more/help-and-troubleshooting/help-articles/working-with-many-to-many-relations#explicit-relations
+  @@index([serviceAccountId, tagId])
+}
