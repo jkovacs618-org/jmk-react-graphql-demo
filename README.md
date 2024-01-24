@@ -43,17 +43,17 @@ yarn install
 In the second terminal, run commands in the server/ sub-directory:
 
 ```bash
-cd path/to/repo/server/
+cd server/
 cp .env.example .env
 yarn install
 ```
 
 > Optional: Customize the GraphQL server Port 4001 in ./server/.env (set PORT), and in root .env (set VITE_GRAPHQL_BASE_URL port).
 
-
 Generate the Prisma Client from DB schema:
 
 ```bash
+cd server/
 npx prisma generate
 ```
 
@@ -69,7 +69,7 @@ npx prisma generate
 In second terminal (keep open and running):
 
 ```bash
-cd path/to/repo/server/
+cd server/
 yarn start
 ```
 
