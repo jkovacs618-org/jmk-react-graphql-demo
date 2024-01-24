@@ -15,6 +15,7 @@ Technologies used:
 Globally installed:
 * nvm
 * npm (10.2+)
+* npx (10.2+)
 * node (v18)
 * yarn (1.22+)
 
@@ -53,7 +54,7 @@ yarn install
 Generate the Prisma Client from DB schema:
 
 ```bash
-yarn prisma generate
+npx prisma generate
 ```
 
 <details>
@@ -88,13 +89,14 @@ yarn dev
 
 ## Login with Demo User:
 
-Visit: http://localhost:5174/
+> Visit: http://localhost:5174/
 
-Email: user@example.org<br/>
-Password: password<br/>
-<br/>
+The Demo User credentials will be filled in to the Login form by default:
 
-Explore the Family, Events, and Accounts sections, with search, add, edit, and delete actions for each.
+* Email: user@example.org<br/>
+* Password: password<br/>
+
+Explore the Family, Events, and Accounts sections, with search, add, edit, and delete actions for each.<br/>
 
 
 # Optional Actions:
@@ -107,24 +109,40 @@ This will load a splash page to redirect to this remote site with specific endpo
 
 ## Run Prisma Studio to view DB data in SQLite:
 
+To load the Prisma Studio local application locally and view the DB data directly:
+
 ```bash
-yarn prisma studio
+cd server/
+npx prisma studio
 ```
-> Visit http://localhost:5555/ to load the Prisma Studio local application to view the DB data directly.
+> Visit http://localhost:5555/
 
 ## Reset DB and Seed Data:
 
+To clear all SQLite database tables of data, and run the Seed script again:
+
 ```bash
-yarn prisma migrate reset
+cd server/
+npx prisma migrate reset
 ```
-This will clear all SQLite database tables of data, and run the prisma/seed.js script again to reinitialize.
 
 ## Recreate SQLite DB from schema and Regenerate Prisma Client:
+
+After any DB schema changes, recreate the migration, DB file, Seed data, and prisma client:
 
 ```bash
 cd server/
 rm -rf prisma/migrations/ prisma/dev.db
-yarn prisma migrate dev --name "init"
-yarn prisma generate
+npx prisma migrate dev --name "init"
+npx prisma generate
 ```
-This uses the prisma/schema.prisma to create the prisma/migrations/* and prisma/dev.db (SQLite DB). The DB data is seeded using a prisma/seed.js script.
+
+## To pull Repo with local DB changes:
+
+Since the SQLite DB is stored in a committed file of server/prisma/dev.db, any data changes requires reverting the file before git pull.
+
+```bash
+cd path/to/repo/
+git checkout -- .
+git pull
+```
