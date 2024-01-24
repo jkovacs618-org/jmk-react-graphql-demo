@@ -72,8 +72,14 @@ cd path/to/repo/server/
 yarn start
 ```
 
+Expected Output:
+```bash
+GraphQL Server ready at: http://localhost:4001/
+```
 
-## Start the React app with Vite:
+## Start the React app:
+
+In the first terminal, start the React app with Vite:
 
 ```bash
 cd path/to/repo/
@@ -82,12 +88,14 @@ yarn dev
 
 ## Login with Demo User:
 
-> Visit: http://localhost:5174/
+Visit: http://localhost:5174/
 
 Email: user@example.org<br/>
 Password: password<br/>
 <br/>
-<br/>
+
+Explore the Family, Events, and Accounts sections, with search, add, edit, and delete actions for each.
+
 
 # Optional Actions:
 

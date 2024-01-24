@@ -8,10 +8,12 @@ import dayjs from "dayjs";
 import Breadcrumbs from "../Layout/Content/Breadcrumbs";
 import { ApolloError, gql, useLazyQuery, useMutation } from "@apollo/client";
 import { Person } from "../../interfaces/interfaces";
+import { useAuth } from "../../contexts/AuthContext";
 
 const PersonsList: React.FC = () => {
     // const personsStore = useContext(PersonsStore);
     const [ searchQuery, setSearchQuery ] = useState('');
+    const { authUser } = useAuth();
 
     const query = gql`
         query GetPersons($filter: String) {
@@ -72,10 +74,17 @@ const PersonsList: React.FC = () => {
         document.getElementById('personsListSearchInput')?.focus();
     }
 
-    const handleClickDelete = (e: React.MouseEvent, personExternalId: string, relationship: string) => {
+    const handleClickDelete = (e: React.MouseEvent, personExternalId: string) => {
         e.preventDefault();
-        if (relationship !== 'Self' && personExternalId !== '') {
-            executeDelete({ variables: { externalId: personExternalId }});
+        if (personExternalId !== '') {
+            if (authUser?.personExternalId == personExternalId) {
+                alert('Cannot Remove Self');
+            }
+            else {
+                if(confirm('Are you sure?')) {
+                    executeDelete({ variables: { externalId: personExternalId }});
+                }
+            }
         }
     }
 
@@ -230,11 +239,11 @@ const PersonsList: React.FC = () => {
                                         <Link to={`/family/person/edit/${person.externalId}`}>
                                             <FontAwesomeIcon icon="pen-to-square" className="text-gray-400 text-lg mr-6" title='Edit Person' />
                                         </Link>
-                                        <Link to="#" onClick={e => { if(confirm('Are you sure?')) { handleClickDelete(e, person.externalId ?? '', person.relationship ?? ''); } }}
-                                            title={(person.relationship === 'Self' ? 'Cannot Remove Self' : 'Remove Person')}
+                                        <Link to="#" onClick={e => { handleClickDelete(e, person.externalId ?? ''); }}
+                                            title={(person.externalId === authUser?.personExternalId ? 'Cannot Remove Self' : 'Remove Person: ' + person.externalId)}
                                             >
                                             <FontAwesomeIcon icon="trash-can"
-                                                className={"text-lg " + (person.relationship === 'Self' ? 'text-gray-200' : 'text-gray-400')}
+                                                className={"text-lg " + (person.externalId === authUser?.personExternalId ? 'text-gray-200' : 'text-gray-400')}
                                             />
                                         </Link>
                                     </Table.Cell>

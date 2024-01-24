@@ -16,9 +16,9 @@ const Register = () => {
 		cpassword: '',
 	});
 
-	const [nameFirstError, setNameFirstError] = React.useState('');
-	const [nameLastError, setNameLastError] = React.useState('');
-	const [emailError, setEmailError] = React.useState('');
+	const [nameFirstError] = React.useState('');
+	const [nameLastError] = React.useState('');
+	const [emailError] = React.useState('');
 	const [passwordError, setPasswordError] = React.useState('');
 
 	const SIGNUP_MUTATION = gql`
@@ -42,7 +42,11 @@ const Register = () => {
 					email
 					status
 					createdAt
+					person {
+						externalId
+					}
 				}
+				personExternalId
 			}
 		}
 	`;
@@ -55,9 +59,14 @@ const Register = () => {
 			password: formState.password
 		},
 		onCompleted: ({ signup }) => {
+			// console.log('signup.onComplete, data: ', signup);
 			if (signup.token && signup.user) {
+				const authUser = {
+					...signup.user,
+					personExternalId: (signup.personExternalId ?? signup.user.person?.externalId)
+				}
+				setAuthUser(authUser);
 				setAuthToken(signup.token);
-				setAuthUser(signup.user);
 				navigate('/');
 			}
 			else {

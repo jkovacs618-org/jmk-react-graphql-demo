@@ -28,14 +28,18 @@ const LoginPage = () => {
 			login(email: $email, password: $password) {
 				token
 				user {
-					id,
-					externalId,
-					nameFirst,
-					nameLast,
-					email,
-					status,
+					id
+					externalId
+					nameFirst
+					nameLast
+					email
+					status
 					createdAt
+					person {
+						externalId
+					}
 				}
+				personExternalId
 			}
 		}
 	`;
@@ -46,11 +50,13 @@ const LoginPage = () => {
 			password: formState.password
 		},
 		onCompleted: ({ login }) => {
-			// console.log('GraphQL Mutation: login: onComplete called');
-			// console.log('user: ', login.user);
-
+			console.log('login.onComplete, data: ', login);
+			const authUser = {
+				...login.user,
+				personExternalId: (login.personExternalId ?? login.user.person?.externalId)
+			}
+			setAuthUser(authUser);
 			setAuthToken(login.token);
-			setAuthUser(login.user);
 			navigate('/');
 		}
 	});

@@ -1,8 +1,9 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { APP_SECRET } from '../../utils/auth.js';
+import { _createPersonOnly, createPersonRelationship } from './Person.js'
 
-export async function signup(parent, args, context, info) {
+export async function signup(parent, args, context) {
   const newAccount = await context.prisma.account.create({
     data: {
       status: 'Active',
@@ -16,41 +17,75 @@ export async function signup(parent, args, context, info) {
         externalId: 'Account' + newAccount.id,
       }
     })
-
-    const password = await bcrypt.hash(args.password, 10);
-    const accountId = newAccount.id;
-
-    const user = await context.prisma.user.create({
-      data: { ...args, password, accountId }
-    });
-    if (user) {
-      const updatedUser = await context.prisma.user.update({
-        where: {id: user.id},
-        data: {
-          externalId: 'User' + user.id,
-          createdUserId: user.id,
+    if (updatedAccount) {
+      const user = await createUser(args, context, newAccount);
+      if (user) {
+        const person = await context.prisma.person.findFirst({
+          where: { id: user.personId }
+        })
+        if (person) {
+          const token = jwt.sign({ userId: user.id }, APP_SECRET);
+          return {
+            token,
+            user,
+            personExternalId: person.externalId,
+          };
         }
-      })
-
-      // Create the Default Calendar for this new Account:
-      const calendar = await createCalendar('Default', context, newAccount.id, user.id);
-
-      const token = jwt.sign({ userId: user.id }, APP_SECRET);
-      return {
-        token,
-        user
-      };
-    }
-    else {
-      throw new Error('Failed to create new user');
+      }
     }
   }
-  else {
-    throw new Error('Failed to create new account');
-  }
+  throw new Error('Failed to create new account');
 }
 
-export async function login(parent, args, context, info) {
+async function createUser(args, context, newAccount) {
+  const password = await bcrypt.hash(args.password, 10);
+  const newUser = await context.prisma.user.create({
+    data: { ...args, password, accountId: newAccount.id }
+  });
+  if (newUser) {
+    const newUserUpdated = await context.prisma.user.update({
+      where: {id: newUser.id},
+      data: {
+        externalId: 'User' + newUser.id,
+        createdUserId: newUser.id,
+      }
+    })
+    if (newUserUpdated) {
+      // Create the initial Person record for this new User and set to 'Self'.
+      const personInput = {
+        nameFirst: newUser.nameFirst,
+        nameLast: newUser.nameLast,
+        accountId: newAccount.id,
+      };
+
+      const newPerson = await _createPersonOnly(context, newAccount.id, newUser.id, personInput);
+      if (newPerson) {
+        // After the Person is created, assign it to this new User.personId.
+        const updatedUser = await context.prisma.user.update({
+          where: {id: newUser.id},
+          data: {
+            personId: newPerson.id,
+          }
+        })
+        if (updatedUser) {
+          // Create the PersonRelationship record of 'Self' for this Person with local values, since context.user is not set.
+          const newPersonRelationship = await createPersonRelationship(context, newPerson, newPerson, 'Self');
+          if (newPersonRelationship) {
+
+            // Create the Default Calendar for this new Account with local values, since context.user is not set.
+            const newCalendar = await _createCalendar('Default', context, newAccount.id, updatedUser.id);
+            if (newCalendar) {
+              return updatedUser;
+            }
+          }
+        }
+      }
+    }
+  }
+  throw new Error('Failed to create new user');
+}
+
+export async function login(parent, args, context) {
   const user = await context.prisma.user.findUnique({
     where: { email: args.email }
   });
@@ -66,15 +101,23 @@ export async function login(parent, args, context, info) {
     throw new Error('Invalid password');
   }
 
+  const person = await context.prisma.person.findFirst({
+    where: { id: user.personId }
+  })
+  if (!person) {
+    throw new Error('Invalid user record');
+  }
+
   const token = jwt.sign({ userId: user.id }, APP_SECRET);
 
   return {
     token,
-    user
+    user,
+    personExternalId: person.externalId
   };
 }
 
-async function createCalendar(newCalendarTitle, context, accountId, userId) {
+async function _createCalendar(newCalendarTitle, context, accountId, userId) {
   const newCalendar = await context.prisma.calendar.create({
     data: {
       accountId: accountId,
