@@ -50,7 +50,6 @@ const ServiceEditForm: React.FC = () => {
     `;
     const [executeLoad, {data, loading, error}] = useLazyQuery(query);
 
-    // Ref: https://blog.logrocket.com/solve-react-useeffect-hook-infinite-loop-patterns/
     const loadModelAsync = useCallback(async (externalId: string) => {
         try {
             executeLoad({

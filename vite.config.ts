@@ -11,9 +11,6 @@ export default defineConfig(({mode}): any => {
     server: {
       host: true,
       port: vite_server_port,
-      // hmr: {
-      //   clientPort: env.VITE_NGINX_PORT,
-      // },
       watch: {
         ignored: ['**/.idea/**'],
       },

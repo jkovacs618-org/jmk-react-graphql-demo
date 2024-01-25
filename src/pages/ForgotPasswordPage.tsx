@@ -1,13 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-// import { useAuth } from '../contexts/AuthContext';
 
-const ForgotPasswordPage = () => {
+const ForgotPasswordPage: React.FC = () => {
 	const [error] = React.useState(null);
 	const [message] = React.useState(null);
 
-	const handleSubmit = async (e) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		alert('Reset Password is Not implemented on Demo');
 	};
@@ -65,7 +64,7 @@ const ForgotPasswordPage = () => {
 							<button
 								type="submit"
 								onClick={e => { e.preventDefault(); alert('Not Implemented for Demo'); }}
-								className="w-full text-white bg-gray-500 hover:bg-gray-400 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-sky-700 dark:focus:ring-sky-800">
+								className="w-full text-white bg-gray-400 hover:bg-gray-500 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-sky-700 dark:focus:ring-sky-800">
 								SUBMIT
 							</button>
 

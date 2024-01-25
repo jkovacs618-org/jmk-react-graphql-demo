@@ -1,24 +1,23 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useMutation, gql } from '@apollo/client';
+import { useMutation, gql, ApolloError } from '@apollo/client';
 import { useAuth } from '../contexts/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { VITE_DEFAULT_EMAIL, VITE_DEFAULT_PASS } from '../setup';
 
-const LoginPage = () => {
+const LoginPage: React.FC = () => {
 	const { setAuthUser, setAuthToken } = useAuth();
+	const [formError] = useState("");
 	const navigate = useNavigate();
 
 	const [formState, setFormState] = useState({
 		login: true,
 		// email: '',
 		// password: '',
-		// Shortcut to fill in login form with credentials set in GraphQL server Seed data:
+		// Shortcut for Demo to fill in login form with credentials set in GraphQL server Seed data:
 		email: VITE_DEFAULT_EMAIL,
 		password: VITE_DEFAULT_PASS,
 	});
-
-	const [formError, setFormError] = useState(null);
 
 	const LOGIN_MUTATION = gql`
 		mutation LoginMutation(
@@ -50,7 +49,7 @@ const LoginPage = () => {
 			password: formState.password
 		},
 		onCompleted: ({ login }) => {
-			console.log('login.onComplete, data: ', login);
+			// console.log('login.onComplete, data: ', login);
 			const authUser = {
 				...login.user,
 				personExternalId: (login.personExternalId ?? login.user.person?.externalId)
@@ -58,20 +57,15 @@ const LoginPage = () => {
 			setAuthUser(authUser);
 			setAuthToken(login.token);
 			navigate('/');
+		},
+		onError: (error: ApolloError) => {
+			console.error(error);
 		}
 	});
 
-	const handleSubmit = async (e) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		try {
-			login();
-		}
-		catch (error) {
-			console.error('login error: ', error);
-			if (error.response.status === 401) {
-				setFormError("Login Failed");
-			}
-		}
+		login();
 	};
 
 	return (

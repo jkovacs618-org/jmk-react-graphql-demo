@@ -3,7 +3,6 @@ import { observer } from "mobx-react";
 import { Table } from "flowbite-react";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// import PersonsStore from "../../stores/PersonsStore";
 import dayjs from "dayjs";
 import Breadcrumbs from "../Layout/Content/Breadcrumbs";
 import { ApolloError, gql, useLazyQuery, useMutation } from "@apollo/client";
@@ -11,7 +10,6 @@ import { Person } from "../../interfaces/interfaces";
 import { useAuth } from "../../contexts/AuthContext";
 
 const PersonsList: React.FC = () => {
-    // const personsStore = useContext(PersonsStore);
     const [ searchQuery, setSearchQuery ] = useState('');
     const { authUser } = useAuth();
 
@@ -46,7 +44,6 @@ const PersonsList: React.FC = () => {
     `;
     const [executeSearch, {data, loading, error}] = useLazyQuery(query);
 
-    // Ref: https://blog.logrocket.com/solve-react-useeffect-hook-infinite-loop-patterns/
     const loadListAsync = useCallback(async () => {
         executeSearch();
     }, [executeSearch]);

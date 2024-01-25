@@ -7,13 +7,13 @@ import { VITE_GRAPHQL_BASE_URL, AUTH_TOKEN } from '../setup';
 // import { getMainDefinition } from '@apollo/client/utilities';
 
 const errorLink = onError(
-    ({ operation, graphqlError, networkError }) => {
+    ({ operation, graphQLErrors, networkError }) => {
       console.log('Apollo Error: operation:', operation.operationName);
 
       if (networkError) {
         console.log("GraphQL server: A network error has been found: ", networkError);
       } else {
-        console.log("GraphQL server: There has been an error: ", graphqlError);
+        console.log("GraphQL server: There has been an error: ", graphQLErrors);
       }
     }
   );
