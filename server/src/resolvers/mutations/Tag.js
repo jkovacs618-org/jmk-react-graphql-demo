@@ -1,5 +1,5 @@
-import { getEvent } from './Event.js'
-import { getServiceAccount } from './ServiceAccount.js'
+import { getEvent } from './Event.js';
+import { getServiceAccount } from './ServiceAccount.js';
 
 export async function createEventTag(parent, args, context) {
   const { eventExternalId, ...tagInput } = args.eventTag;
@@ -14,13 +14,13 @@ export async function createEventTag(parent, args, context) {
         where: {eventId: event.id, tagId: tag.id, deleted: false}
       });
       if (!eventTag) {
-        const newEventTag = await context.prisma.eventTag.create({
+        await context.prisma.eventTag.create({
           data: {
             eventId: event.id,
             tagId: tag.id,
             createdUserId: context.user.id,
           }
-        })
+        });
       }
 
       // Return Tag instead of EventTag (mapping), since createEventTag signature is for return Tag.
@@ -28,7 +28,7 @@ export async function createEventTag(parent, args, context) {
     }
     else {
       throw new Error(
-        `Failed to find or create Tag for Event`
+        'Failed to find or create Tag for Event'
       );
     }
   }
@@ -52,13 +52,13 @@ export async function createServiceTag(parent, args, context) {
         where: {serviceAccountId: serviceAccount.id, tagId: tag.id, deleted: false}
       });
       if (!serviceTag) {
-        const newServiceTag = await context.prisma.serviceTag.create({
+        await context.prisma.serviceTag.create({
           data: {
             serviceAccountId: serviceAccount.id,
             tagId: tag.id,
             createdUserId: context.user.id,
           }
-        })
+        });
       }
 
       // Return Tag instead of ServiceTag (mapping), since createServiceTag signature is for return Tag.
@@ -66,7 +66,7 @@ export async function createServiceTag(parent, args, context) {
     }
     else {
       throw new Error(
-        `Failed to find or create Tag for Service`
+        'Failed to find or create Tag for Service'
       );
     }
   }
@@ -97,7 +97,7 @@ async function _getOrCreateTag(tagInput, context) {
         data: {
           externalId: 'Tag' + newTag.id
         }
-      })
+      });
       return tag;
     }
   }
@@ -134,7 +134,7 @@ export async function deleteEventTag(parent, args, context) {
 export async function deleteServiceTag(parent, args, context) {
   const tag = await getTag(args.tagExternalId, context);
   if (tag) {
-    const serviceAccount = await getService(args.externalServiceAccountId, context);
+    const serviceAccount = await getServiceAccount(args.externalServiceAccountId, context);
     if (serviceAccount) {
       const { count } = await context.prisma.serviceTag.updateMany({
         where: {serviceAccountId: serviceAccount.id, tagId: tag.id, deleted: false},

@@ -1,5 +1,5 @@
-import { getEvent } from './Event.js'
-import { getServiceAccount } from './ServiceAccount.js'
+import { getEvent } from './Event.js';
+import { getServiceAccount } from './ServiceAccount.js';
 
 export async function createEventNote(parent, args, context) {
   const eventExternalId = args.eventExternalId;
@@ -52,7 +52,7 @@ async function _createNote(noteInput, refType, refId, context) {
       data: {
         externalId: 'Note' + newNote.id
       }
-    })
+    });
     return note;
   }
   return null;
@@ -63,7 +63,7 @@ export async function updateNote(parent, args, context) {
   if (model) {
     // Once a Note is set on an Event or ServiceAccount, it cannot be moved to another object/type.
     // Deconstruct any NoteInput fields that cannot be updated on Note:
-    const {eventExternalId, serviceAccountExternalId, ...noteInput} = args.note;
+    const { eventExternalId, serviceAccountExternalId, ...noteInput } = args.note;
 
     const updatedNote = await context.prisma.note.update({
       where: {id: model.id},

@@ -1,5 +1,5 @@
-// Use `yarn prisma format` to format file and generate related fields.
-// Changes require a DB migration: `yarn prisma migrate dev` then `yarn prisma generate`.
+// Use `npx prisma format` to format file and generate related fields.
+// Changes require a DB migration: `npx prisma migrate dev` then `npx prisma generate`.
 
 datasource db {
   provider = "sqlite"

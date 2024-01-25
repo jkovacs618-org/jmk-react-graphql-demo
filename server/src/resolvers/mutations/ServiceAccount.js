@@ -43,7 +43,7 @@ export async function createServiceAccount(parent, args, context) {
       data: {
         externalId: 'ServiceAccount' + newServiceAccount.id
       }
-    })
+    });
     return serviceAccount;
   }
   return null;
@@ -173,14 +173,14 @@ async function createOrganization(newOrganizationName, context) {
       name: newOrganizationName,
       createdUserId: context.userId,
     }
-  })
+  });
   if (newOrganization) {
     const organization = await context.prisma.organization.update({
       where: {id: newOrganization.id},
       data: {
         externalId: 'Organization' + newOrganization.id
       }
-    })
+    });
     return organization;
   }
   return null;

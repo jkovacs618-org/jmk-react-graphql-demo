@@ -15,7 +15,7 @@ export async function createCalendar(parent, args, context) {
       data: {
         externalId: 'Calendar' + newCalendar.id
       }
-    })
+    });
     return calendar;
   }
   return null;

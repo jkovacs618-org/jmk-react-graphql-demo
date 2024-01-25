@@ -38,7 +38,7 @@ export async function createEvent(parent, args, context) {
       data: {
         externalId: 'Event' + newEvent.id
       }
-    })
+    });
     return event;
   }
   return null;
@@ -137,14 +137,14 @@ async function createCalendar(newCalendarTitle, context) {
       title: newCalendarTitle,
       createdUserId: context.userId,
     }
-  })
+  });
   if (newCalendar) {
     const calendar = await context.prisma.calendar.update({
       where: {id: newCalendar.id},
       data: {
         externalId: 'Calendar' + newCalendar.id
       }
-    })
+    });
     return calendar;
   }
   return null;

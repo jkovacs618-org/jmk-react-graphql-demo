@@ -450,4 +450,4 @@ export const typeDefs = `#graphql
     desc
   }
 
-`
+`;

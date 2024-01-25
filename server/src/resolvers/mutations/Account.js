@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { APP_SECRET } from '../../utils/auth.js';
-import { _createPersonOnly, createPersonRelationship } from './Person.js'
+import { _createPersonOnly, createPersonRelationship } from './Person.js';
 
 export async function signup(parent, args, context) {
   const newAccount = await context.prisma.account.create({
@@ -9,20 +9,20 @@ export async function signup(parent, args, context) {
       status: 'Active',
       accountType: 'Customer',
     }
-  })
+  });
   if (newAccount) {
     const updatedAccount = await context.prisma.account.update({
       where: {id: newAccount.id},
       data: {
         externalId: 'Account' + newAccount.id,
       }
-    })
+    });
     if (updatedAccount) {
       const user = await createUser(args, context, newAccount);
       if (user) {
         const person = await context.prisma.person.findFirst({
           where: { id: user.personId }
-        })
+        });
         if (person) {
           const token = jwt.sign({ userId: user.id }, APP_SECRET);
           return {
@@ -49,7 +49,7 @@ async function createUser(args, context, newAccount) {
         externalId: 'User' + newUser.id,
         createdUserId: newUser.id,
       }
-    })
+    });
     if (newUserUpdated) {
       // Create the initial Person record for this new User and set to 'Self'.
       const personInput = {
@@ -66,7 +66,7 @@ async function createUser(args, context, newAccount) {
           data: {
             personId: newPerson.id,
           }
-        })
+        });
         if (updatedUser) {
           // Create the PersonRelationship record of 'Self' for this Person with local values, since context.user is not set.
           const newPersonRelationship = await createPersonRelationship(context, newPerson, newPerson, 'Self');
@@ -103,7 +103,7 @@ export async function login(parent, args, context) {
 
   const person = await context.prisma.person.findFirst({
     where: { id: user.personId }
-  })
+  });
   if (!person) {
     throw new Error('Invalid user record');
   }
@@ -125,14 +125,14 @@ async function _createCalendar(newCalendarTitle, context, accountId, userId) {
       isDefault: true,
       createdUserId: userId,
     }
-  })
+  });
   if (newCalendar) {
     const calendar = await context.prisma.calendar.update({
       where: {id: newCalendar.id},
       data: {
         externalId: 'Calendar' + newCalendar.id
       }
-    })
+    });
     return calendar;
   }
   return null;

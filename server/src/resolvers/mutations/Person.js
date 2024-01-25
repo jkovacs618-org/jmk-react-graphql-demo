@@ -10,7 +10,7 @@ export async function createPerson(parent, args, context) {
     // After new Person is created, attempt to create PersonRelationship record between Self Person and New Person.
     if (context.user.personId && relationship !== '') {
       const selfPerson = await getSelfPerson(context);
-      const newPersonRelationship = await createPersonRelationship(context, selfPerson, newPerson, relationship)
+      const newPersonRelationship = await createPersonRelationship(context, selfPerson, newPerson, relationship);
       if (newPersonRelationship) {
         return newPerson;
       }
@@ -42,7 +42,7 @@ export async function _createPersonOnly(context, accountId, userId, personInput)
       data: {
         externalId: 'Person' + newPerson.id
       }
-    })
+    });
     if (updatedPerson) {
       return updatedPerson;
     }
@@ -71,12 +71,11 @@ export async function updatePerson(parent, args, context) {
 
     // After Person is updated, conditionally sync the PersonRelationship record between Self Person and New Person.
     // If PersonRelationship exists, but type is different than input relationship, logically-delete PR and recreate PR.
-    let newPersonRelationship = null;
     if (context.user.personId) {
       const selfPerson = await getSelfPerson(context);
       const personRelationship = await getPersonRelationship(context, selfPerson, updatedPerson);
       if (!personRelationship) {
-        newPersonRelationship = await createPersonRelationship(context, selfPerson, updatedPerson, relationship)
+        await createPersonRelationship(context, selfPerson, updatedPerson, relationship);
       }
       else {
         if (personRelationship.type !== relationship) {
@@ -86,9 +85,9 @@ export async function updatePerson(parent, args, context) {
               deleted: true,
               deletedAt: new Date(),
             }
-          })
+          });
           if (deletedRecord) {
-            newPersonRelationship = await createPersonRelationship(context, selfPerson, updatedPerson, relationship)
+            await createPersonRelationship(context, selfPerson, updatedPerson, relationship);
           }
         }
       }
@@ -106,7 +105,7 @@ export async function updatePerson(parent, args, context) {
 export async function deletePerson(parent, args, context) {
   const selfPerson = await context.prisma.person.findFirst({
     where: { id: context.user.personId }
-  })
+  });
   if (selfPerson.externalId === args.externalId) {
     throw new Error('Cannot delete Person for current user');
   }
@@ -169,6 +168,6 @@ async function getPersonRelationship(context, person1, person2) {
       person2Id: person2.id,
       deleted: false,
     }
-  })
+  });
   return personRelationship;
 }

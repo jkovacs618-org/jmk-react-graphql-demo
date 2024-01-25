@@ -1,57 +1,57 @@
-export const organizations = (parent, args, context, info) => {
-    return context.prisma.organization.findMany({
-      where: {
-        AND: [
-          { deleted: false },
-          {
-            OR: [
-              { accountId: 1 },
-              { accountId: context.user.accountId },
-            ]
-          }
-        ]
-      }
-    });
-}
+export const organizations = (parent, args, context) => {
+  return context.prisma.organization.findMany({
+    where: {
+      AND: [
+        { deleted: false },
+        {
+          OR: [
+            { accountId: 1 },
+            { accountId: context.user.accountId },
+          ]
+        }
+      ]
+    }
+  });
+};
 
-export const serviceTypes = (parent, args, context, info) => {
-    return context.prisma.serviceType.findMany({
-      where: {
-        AND: [
-          { deleted: false },
-          {
-            OR: [
-              { accountId: 1 },
-              { accountId: context.user.accountId },
-            ]
-          }
-        ]
-      }
-    });
-}
+export const serviceTypes = (parent, args, context) => {
+  return context.prisma.serviceType.findMany({
+    where: {
+      AND: [
+        { deleted: false },
+        {
+          OR: [
+            { accountId: 1 },
+            { accountId: context.user.accountId },
+          ]
+        }
+      ]
+    }
+  });
+};
 
-export const serviceAccounts = (parent, args, context, info) => {
-    return context.prisma.serviceAccount.findMany({
-      where: {
-        accountId: context.user.accountId,
-        deleted: false
-      }
-    });
-}
+export const serviceAccounts = (parent, args, context) => {
+  return context.prisma.serviceAccount.findMany({
+    where: {
+      accountId: context.user.accountId,
+      deleted: false
+    }
+  });
+};
 
-export const serviceAccount = (parent, args, context, info) => {
-  const externalId = args.externalId
+export const serviceAccount = (parent, args, context) => {
+  const externalId = args.externalId;
   const where = {
     externalId: externalId,
     accountId: context.user.accountId,
     deleted: false,
-  }
+  };
   return context.prisma.serviceAccount.findFirst({
     where: where
   });
-}
+};
 
-export const servicesList = async (parent, args, context, info) => {
+export const servicesList = async (parent, args, context) => {
   const where = {
     AND: [
       { accountId: context.user.accountId },
@@ -64,9 +64,9 @@ export const servicesList = async (parent, args, context, info) => {
           { accountNumber: { contains: args.filter } },
         ]
       }
-      : {},
+        : {},
     ]
-  }
+  };
 
   const serviceAccounts = await context.prisma.serviceAccount.findMany({
     where: where,
@@ -83,4 +83,4 @@ export const servicesList = async (parent, args, context, info) => {
     serviceAccounts,
     count
   };
-}
+};

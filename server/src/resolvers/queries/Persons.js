@@ -1,22 +1,22 @@
-export const persons = (parent, args, context, info) => {
-    return context.prisma.person.findMany({
-      where: { accountId: context.user.accountId, deleted: false }
-    });
-}
+export const persons = (parent, args, context) => {
+  return context.prisma.person.findMany({
+    where: { accountId: context.user.accountId, deleted: false }
+  });
+};
 
-export const person = (parent, args, context, info) => {
-  const externalId = args.externalId
+export const person = (parent, args, context) => {
+  const externalId = args.externalId;
   const where = {
     externalId: externalId,
     accountId: context.user.accountId,
     deleted: false,
-  }
+  };
   return context.prisma.person.findFirst({
     where: where
   });
-}
+};
 
-export const personsList = async (parent, args, context, info) => {
+export const personsList = async (parent, args, context) => {
   const where = {
     AND: [
       { accountId: context.user.accountId },
@@ -30,9 +30,9 @@ export const personsList = async (parent, args, context, info) => {
           // Not Working: { person2Relationship: { type: { contains: args.filter } } },
         ]
       }
-      : {},
+        : {},
     ]
-  }
+  };
 
   const persons = await context.prisma.person.findMany({
     where: where,
@@ -49,4 +49,4 @@ export const personsList = async (parent, args, context, info) => {
     persons,
     count
   };
-}
+};

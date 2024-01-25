@@ -6,7 +6,7 @@ import { organizations, serviceTypes, serviceAccounts, serviceAccount, servicesL
 import { notes } from './Notes.js';
 import { tags } from './Tags.js';
 
-function info(parent, args, context, info) {
+function info() {
   return 'GraphQL Server (Apollo + Prisma)';
 }
 

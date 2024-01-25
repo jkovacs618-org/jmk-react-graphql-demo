@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
-import { ApolloServer } from 'apollo-server'
-import { typeDefs } from './schema.js'
-import { resolvers } from './resolvers.js'
+import { ApolloServer } from 'apollo-server';
+import { typeDefs } from './schema.js';
+import { resolvers } from './resolvers.js';
 import { getUserId, getUser } from './utils/auth.js';
 
 const prisma = new PrismaClient();

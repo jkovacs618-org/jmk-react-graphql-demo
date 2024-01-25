@@ -2,80 +2,60 @@
 // See: https://www.prisma.io/docs/orm/prisma-migrate/workflows/seeding
 //
 // Seeding runs automatically on:
-// $ yarn prisma migrate dev
+// $ npx prisma migrate dev
 // and
-// $ yarn prisma migrate reset
+// $ npx prisma migrate reset
 //
 // NOTE: To run migrate dev|reset above without seeding, add --skip-seed flag.
 //
 // Manual Usage:
-// $ yarn prisma db seed
+// $ npx prisma db seed
 
-import { PrismaClient } from '@prisma/client'
-const prisma = new PrismaClient()
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
 
 async function main() {
 
   // Accounts:
-  const account1 = await prisma.account.upsert({
-    where: { id: 1 },
-    update: {},
-    create: {
-      externalId: 'Account1',
-      accountNumber: '1000001',
-      accountType: 'System',
-    },
-  })
-  const account2 = await prisma.account.upsert({
-    where: { id: 2 },
-    update: {},
-    create: {
-      externalId: 'Account2',
-      accountNumber: '1000002',
-      accountType: 'Customer',
-    },
-  })
-  console.log('Created 2 Account records.');
+  const accounts = [
+    {id: 1, externalId: 'Account1', accountNumber: '1000001', accountType: 'System'},
+    {id: 2, externalId: 'Account2', accountNumber: '1000002', accountType: 'Customer'},
+  ];
+  for (let i = 0; i < accounts.length; i++) {
+    const accountData = accounts[i];
+    await prisma.account.upsert({
+      where: { id: accountData.id },
+      update: {},
+      create: accountData,
+    });
+  }
+  console.log('Created ' + accounts.length + ' Account records.');
 
   // Users:
-  const user1 = await prisma.user.upsert({
-    where: { email: 'admin@example.org' },
-    update: {},
-    create: {
-      externalId: 'User1',
-      accountId: 1,
-      nameFirst: 'Admin',
-      nameLast: 'User',
-      email: 'admin@example.org',
-      password: '$2a$10$KFh4/AIAZvfbMeXHk.wA4Op1Pa5N9DVoIYVtsR5p4Wbty6ftRTMXC', // "password"
+  const users = [
+    {
+      externalId: 'User1', accountId: 1, nameFirst: 'Admin', nameLast: 'User',
+      email: 'admin@example.org', password: '$2a$10$KFh4/AIAZvfbMeXHk.wA4Op1Pa5N9DVoIYVtsR5p4Wbty6ftRTMXC', // "password"
     },
-  })
-  // NOTE: This email address of user@example.org matches the React app .env file VITE_DEFAULT_EMAIL/PASSWORD to shortcut login.
-  const user2 = await prisma.user.upsert({
-    where: { email: 'user@example.org' },
-    update: {},
-    create: {
-      externalId: 'User2',
-      accountId: 2,
-      nameFirst: 'Demo',
-      nameLast: 'Name',
-      email: 'user@example.org',
-      password: '$2a$10$KFh4/AIAZvfbMeXHk.wA4Op1Pa5N9DVoIYVtsR5p4Wbty6ftRTMXC', // "password"
+    {
+      externalId: 'User2', accountId: 2, nameFirst: 'Demo', nameLast: 'Name',
+      // NOTE: This email address of user@example.org matches the React app .env file VITE_DEFAULT_EMAIL/PASSWORD to shortcut login.
+      email: 'user@example.org', password: '$2a$10$KFh4/AIAZvfbMeXHk.wA4Op1Pa5N9DVoIYVtsR5p4Wbty6ftRTMXC', // "password"
     },
-  })
-  const user3 = await prisma.user.upsert({
-    where: { email: 'spouse@example.org' },
-    update: {},
-    create: {
-      externalId: 'User3',
-      accountId: 2,
-      nameFirst: 'Spouse',
-      nameLast: 'Name',
-      email: 'spouse@example.org',
-      password: '$2a$10$KFh4/AIAZvfbMeXHk.wA4Op1Pa5N9DVoIYVtsR5p4Wbty6ftRTMXC', // "password"
-    },
-  })
-  console.log('Created 3 User records.');
+    {
+      externalId: 'User3', accountId: 2, nameFirst: 'Spouse', nameLast: 'Name',
+      email: 'spouse@example.org', password: '$2a$10$KFh4/AIAZvfbMeXHk.wA4Op1Pa5N9DVoIYVtsR5p4Wbty6ftRTMXC', // "password"
+    }
+  ];
+  for (let i = 0; i < users.length; i++) {
+    const userData = users[i];
+    await prisma.user.upsert({
+      where: { email: userData.email },
+      update: {},
+      create: userData,
+    });
+  }
+  console.log('Created ' + users.length + ' User records.');
 
   // NOTE: prisma.model.createMany is not supported by SQLite, so use loop of await prisma.model.create statements.
   // Ref: https://www.prisma.io/docs/orm/reference/prisma-client-reference#remarks-10
@@ -104,7 +84,7 @@ async function main() {
   }
   console.log('Created ' + personRelationships.length + ' PersonRelationship records.');
 
-  // User Updates:
+  // User Person Updates:
   const updatedUser2 = await prisma.user.update({
     where: {id: 2},
     data: {personId: 1}
@@ -113,7 +93,9 @@ async function main() {
     where: {id: 3},
     data: {personId: 2}
   });
-  console.log('Updated 2 User records to set Person ID.');
+  if (updatedUser2 && updatedUser3) {
+    console.log('Updated 2 User records to set Person ID.');
+  }
 
   // Calendars:
   const calendars = [
@@ -301,10 +283,10 @@ async function main() {
 
 main()
   .then(async () => {
-    await prisma.$disconnect()
+    await prisma.$disconnect();
   })
   .catch(async (e) => {
-    console.error(e)
-    await prisma.$disconnect()
-    process.exit(1)
-  })
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
+  });
