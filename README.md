@@ -6,7 +6,7 @@ There is a Demo user to login with, seeded with test data, and supports creating
 
 Technologies used:
 
-* Front-end: React, TypeScript, MobX (store), Apollo Client (GraphQL), Vite, Yarn
+* Front-end: React, TypeScript, Apollo Client (GraphQL), MobX (store), Vite, Yarn
 * Back-end: Apollo GraphQL Server, Prisma (ORM), SQLite (file DB), Yarn
 * UI/Styles: Tailwind CSS, Flowbite, FontAwesome
 
@@ -16,12 +16,11 @@ Globally installed:
 * nvm
 * npm (10.2+)
 * npx (10.2+)
-* node (v18)
+* node (v18.19.0)
 * yarn (1.22+)
 
 ```bash
-nvm install 18
-nvm use 18
+nvm install v18.19.0
 npm install --global yarn
 ```
 
@@ -32,6 +31,7 @@ In the first terminal, run commands in the root path of the repo:
 ```bash
 cd path/to/repo/
 cp .env.example .env
+nvm use
 yarn install
 ```
 
@@ -45,6 +45,7 @@ In the second terminal, run commands in the server/ sub-directory:
 ```bash
 cd server/
 cp .env.example .env
+nvm use
 yarn install
 ```
 
