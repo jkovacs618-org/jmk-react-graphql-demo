@@ -10,19 +10,19 @@ const server = new ApolloServer({
   typeDefs,
   resolvers,
   context: async ({ req }) => {
-    const userId = (req && req.headers.authorization ? getUserId(req) : null);
-    const user = (userId ? await getUser(userId, prisma) : null);
+    const userId = req && req.headers.authorization ? getUserId(req) : null;
+    const user = userId ? await getUser(userId, prisma) : null;
     return {
       ...req,
       prisma,
       userId: userId,
-      user: user
+      user: user,
     };
   },
 });
 
 const port = process.env.PORT || 4001;
 
-server.listen({ port }).then(({ url}) => {
+server.listen({ port }).then(({ url }) => {
   console.log(`🚀 GraphQL Server ready at: ${url}`);
 });

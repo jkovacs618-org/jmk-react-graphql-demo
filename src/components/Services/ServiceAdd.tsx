@@ -1,17 +1,17 @@
-import React, { useCallback, useContext, useEffect, useState } from "react"
-import ServicesStore from "../../stores/ServicesStore"
-import { observer } from "mobx-react"
-import { Label, Select, TextInput } from 'flowbite-react';
-import { useNavigate } from "react-router-dom";
-import Breadcrumbs from "../Layout/Content/Breadcrumbs";
-import SubmitButton from "../Shared/SubmitButton";
-import CancelButton from "../Shared/CancelButton";
-import { ServiceAccount } from "../../interfaces/interfaces";
-import { ApolloError, gql, useLazyQuery, useMutation } from "@apollo/client";
+import React, { useCallback, useContext, useEffect, useState } from 'react'
+import ServicesStore from '../../stores/ServicesStore'
+import { observer } from 'mobx-react'
+import { Label, Select, TextInput } from 'flowbite-react'
+import { useNavigate } from 'react-router-dom'
+import Breadcrumbs from '../Layout/Content/Breadcrumbs'
+import SubmitButton from '../Shared/SubmitButton'
+import CancelButton from '../Shared/CancelButton'
+import { ServiceAccount } from '../../interfaces/interfaces'
+import { ApolloError, gql, useLazyQuery, useMutation } from '@apollo/client'
 
 const ServiceAddForm: React.FC = () => {
     const [serviceAccount, setServiceAccount] = useState<ServiceAccount | null>(null)
-    const [newOrganizationNameError, setNewOrganizationNameError] = React.useState('');
+    const [newOrganizationNameError, setNewOrganizationNameError] = React.useState('')
     const servicesStore = useContext(ServicesStore)
     const { organizations, serviceTypes } = servicesStore
     const navigate = useNavigate()
@@ -27,8 +27,8 @@ const ServiceAddForm: React.FC = () => {
                 name
             }
         }
-    `;
-    const [executeLoad] = useLazyQuery(getRecordsQuery);
+    `
+    const [executeLoad] = useLazyQuery(getRecordsQuery)
 
     const loadRecordsAsync = useCallback(async () => {
         try {
@@ -36,35 +36,33 @@ const ServiceAddForm: React.FC = () => {
                 variables: {},
                 onCompleted: (data) => {
                     if (typeof data.organizations !== 'undefined' && data.organizations) {
-                        servicesStore.setOrganizations(data.organizations);
+                        servicesStore.setOrganizations(data.organizations)
                     }
                     if (typeof data.serviceTypes !== 'undefined' && data.serviceTypes) {
-                        servicesStore.setServiceTypes(data.serviceTypes);
+                        servicesStore.setServiceTypes(data.serviceTypes)
                     }
-                }
-            });
+                },
+            })
+        } catch (error) {
+            console.error(error)
         }
-        catch (error) {
-            console.error(error);
-        }
-    }, [executeLoad, servicesStore]);
-
+    }, [executeLoad, servicesStore])
 
     useEffect(() => {
         // On component load, Reset the inputs:
-        loadRecordsAsync();
+        loadRecordsAsync()
         setServiceAccount({
-            organizationExternalId: "",
-            serviceTypeExternalId: "",
-            description: "",
-            accountNumber: "",
-            startDate: "",
-            endDate: "",
+            organizationExternalId: '',
+            serviceTypeExternalId: '',
+            description: '',
+            accountNumber: '',
+            startDate: '',
+            endDate: '',
         } as ServiceAccount)
-        return ( () => {
+        return () => {
             // console.log('ServiceAddForm cleanup');
-        });
-    }, [loadRecordsAsync]);
+        }
+    }, [loadRecordsAsync])
 
     const createModelQuery = gql`
         mutation CreateServiceAccountMutation($serviceAccount: ServiceAccountInput!) {
@@ -85,7 +83,7 @@ const ServiceAddForm: React.FC = () => {
                 }
             }
         }
-    `;
+    `
 
     const [executeCreate] = useMutation(createModelQuery, {
         variables: {
@@ -97,35 +95,36 @@ const ServiceAddForm: React.FC = () => {
                 accountNumber: serviceAccount?.accountNumber,
                 startDate: serviceAccount?.startDate,
                 endDate: serviceAccount?.endDate,
-            }
+            },
         },
         onError: (error: ApolloError) => {
-            console.error('ServiceAccount Create Failed: error: ', error);
-            navigate('/services');
+            console.error('ServiceAccount Create Failed: error: ', error)
+            navigate('/services')
         },
         onCompleted: (data) => {
             console.debug('ServiceAccount Created: data:', data)
-            navigate('/services');
-        }
-    });
+            navigate('/services')
+        },
+    })
 
     const submitForm = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        if (serviceAccount?.organizationExternalId === 'NEW' && serviceAccount.newOrganizationName === '') {
+        e.preventDefault()
+        if (
+            serviceAccount?.organizationExternalId === 'NEW' &&
+            serviceAccount.newOrganizationName === ''
+        ) {
             setNewOrganizationNameError('Please enter a name')
-        }
-        else {
+        } else {
             setNewOrganizationNameError('')
         }
-        executeCreate();
+        executeCreate()
     }
 
-
     const breadcrumbLinks = [
-        {path: '/', label: 'Dashboard'},
-        {path: '/services', label: 'Accounts'},
-        {path: '', label: 'New'},
-    ];
+        { path: '/', label: 'Dashboard' },
+        { path: '/services', label: 'Accounts' },
+        { path: '', label: 'New' },
+    ]
 
     return (
         <>
@@ -133,9 +132,11 @@ const ServiceAddForm: React.FC = () => {
 
             <h2 className="text-3xl text-slate-600 font-bold">New Account</h2>
 
-            <form onSubmit={(e) => {
-                submitForm(e);
-            }}>
+            <form
+                onSubmit={(e) => {
+                    submitForm(e)
+                }}
+            >
                 <div className="form-group">
                     <div className="mb-2">
                         <div className="mb-1 block">
@@ -144,24 +145,41 @@ const ServiceAddForm: React.FC = () => {
                         <Select
                             className="form-control"
                             name="organizationExternalId"
-                            value={serviceAccount?.organizationExternalId ?? ""}
-                            onChange={e => { setServiceAccount({...serviceAccount, organizationExternalId: e.target.value} as ServiceAccount)} }
+                            value={serviceAccount?.organizationExternalId ?? ''}
+                            onChange={(e) => {
+                                setServiceAccount({
+                                    ...serviceAccount,
+                                    organizationExternalId: e.target.value,
+                                } as ServiceAccount)
+                            }}
                             sizing="sm"
                             required
                             autoFocus
                         >
-                            <option value=''>Select...</option>
-                            {organizations.map(organization => {
-                                return <option key={organization.externalId} value={organization.externalId}>{organization.name}</option>
+                            <option value="">Select...</option>
+                            {organizations.map((organization) => {
+                                return (
+                                    <option
+                                        key={organization.externalId}
+                                        value={organization.externalId}
+                                    >
+                                        {organization.name}
+                                    </option>
+                                )
                             })}
-                            <option key="NEW" value='NEW'>Add New</option>
+                            <option key="NEW" value="NEW">
+                                Add New
+                            </option>
                         </Select>
                     </div>
 
                     {serviceAccount && serviceAccount.organizationExternalId === 'NEW' && (
                         <div className="mb-2">
                             <div className="mb-1 block">
-                                <Label htmlFor="newOrganizationName" value="New Organization Name" />
+                                <Label
+                                    htmlFor="newOrganizationName"
+                                    value="New Organization Name"
+                                />
                             </div>
                             <TextInput
                                 className="form-control"
@@ -169,7 +187,12 @@ const ServiceAddForm: React.FC = () => {
                                 type="text"
                                 value={serviceAccount.newOrganizationName ?? ''}
                                 placeholder=""
-                                onChange={e => { setServiceAccount({...serviceAccount, newOrganizationName: e.target.value} as ServiceAccount)} }
+                                onChange={(e) => {
+                                    setServiceAccount({
+                                        ...serviceAccount,
+                                        newOrganizationName: e.target.value,
+                                    } as ServiceAccount)
+                                }}
                                 sizing="sm"
                                 required
                             />
@@ -187,9 +210,14 @@ const ServiceAddForm: React.FC = () => {
                             className="form-control"
                             name="description"
                             type="text"
-                            value={serviceAccount?.description ?? ""}
+                            value={serviceAccount?.description ?? ''}
                             placeholder=""
-                            onChange={e => { setServiceAccount({...serviceAccount, description: e.target.value} as ServiceAccount)} }
+                            onChange={(e) => {
+                                setServiceAccount({
+                                    ...serviceAccount,
+                                    description: e.target.value,
+                                } as ServiceAccount)
+                            }}
                             sizing="sm"
                         />
                     </div>
@@ -201,13 +229,25 @@ const ServiceAddForm: React.FC = () => {
                         <Select
                             className="form-control"
                             name="serviceTypeExternalId"
-                            value={serviceAccount?.serviceTypeExternalId ?? ""}
-                            onChange={e => { setServiceAccount({...serviceAccount, serviceTypeExternalId: e.target.value} as ServiceAccount)} }
+                            value={serviceAccount?.serviceTypeExternalId ?? ''}
+                            onChange={(e) => {
+                                setServiceAccount({
+                                    ...serviceAccount,
+                                    serviceTypeExternalId: e.target.value,
+                                } as ServiceAccount)
+                            }}
                             sizing="sm"
                         >
-                            <option value=''>Select...</option>
-                            {serviceTypes.map(serviceType => {
-                                return <option key={serviceType.externalId} value={serviceType.externalId}>{serviceType.name}</option>
+                            <option value="">Select...</option>
+                            {serviceTypes.map((serviceType) => {
+                                return (
+                                    <option
+                                        key={serviceType.externalId}
+                                        value={serviceType.externalId}
+                                    >
+                                        {serviceType.name}
+                                    </option>
+                                )
                             })}
                         </Select>
                     </div>
@@ -220,9 +260,14 @@ const ServiceAddForm: React.FC = () => {
                             className="form-control"
                             name="accountNumber"
                             type="text"
-                            value={serviceAccount?.accountNumber ?? ""}
+                            value={serviceAccount?.accountNumber ?? ''}
                             placeholder=""
-                            onChange={e => { setServiceAccount({...serviceAccount, accountNumber: e.target.value} as ServiceAccount)} }
+                            onChange={(e) => {
+                                setServiceAccount({
+                                    ...serviceAccount,
+                                    accountNumber: e.target.value,
+                                } as ServiceAccount)
+                            }}
                             sizing="sm"
                         />
                     </div>
@@ -235,9 +280,14 @@ const ServiceAddForm: React.FC = () => {
                             className="form-control"
                             name="startDate"
                             type="date"
-                            value={serviceAccount?.startDate ?? ""}
+                            value={serviceAccount?.startDate ?? ''}
                             placeholder="Start Date"
-                            onChange={e => { setServiceAccount({...serviceAccount, startDate: e.target.value} as ServiceAccount)} }
+                            onChange={(e) => {
+                                setServiceAccount({
+                                    ...serviceAccount,
+                                    startDate: e.target.value,
+                                } as ServiceAccount)
+                            }}
                             sizing="sm"
                         />
                     </div>
@@ -250,9 +300,14 @@ const ServiceAddForm: React.FC = () => {
                             className="form-control"
                             name="endDate"
                             type="date"
-                            value={serviceAccount?.endDate ?? ""}
+                            value={serviceAccount?.endDate ?? ''}
                             placeholder="End Date"
-                            onChange={e => { setServiceAccount({...serviceAccount, endDate: e.target.value} as ServiceAccount)} }
+                            onChange={(e) => {
+                                setServiceAccount({
+                                    ...serviceAccount,
+                                    endDate: e.target.value,
+                                } as ServiceAccount)
+                            }}
                             sizing="sm"
                         />
                     </div>

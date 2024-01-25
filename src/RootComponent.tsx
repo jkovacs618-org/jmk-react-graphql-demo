@@ -26,38 +26,38 @@ import PersonAdd from './components/Family/PersonAdd'
 
 const RootComponent: React.FC = () => {
     return (
-      <div>
-        <Router>
-          <Routes>
-            <Route path="/" element={<GuestLayout />}>
-              <Route path='/' element={<LoginPage />} />
-              <Route path='/register' element={<RegisterPage />} />
-              <Route path='/password/forgot' element={<ForgotPasswordPage />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Route>
-            <Route path="/" element={<ProtectedLayout />}>
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="family" element={<FamilyPage />}>
-                <Route index path="" element={<PersonsList />} />
-                <Route path="person/new" element={<PersonAdd />} />
-                <Route path="person/edit/:id" element={<PersonEdit />} />
-              </Route>
-              <Route path="events" element={<EventsPage />}>
-                <Route index path="" element={<EventsList />} />
-                <Route path="new" element={<EventAdd />} />
-                <Route path="edit/:id" element={<EventEdit />} />
-              </Route>
-              <Route path="services" element={<ServicesPage />}>
-                <Route index path="" element={<ServicesList />} />
-                <Route path="new" element={<ServiceAdd />} />
-                <Route path="edit/:id" element={<ServiceEdit />} />
-              </Route>
-              <Route path="account" element={<AccountPage />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Route>
-          </Routes>
-        </Router>
-      </div>
+        <div>
+            <Router>
+                <Routes>
+                    <Route path="/" element={<GuestLayout />}>
+                        <Route path="/" element={<LoginPage />} />
+                        <Route path="/register" element={<RegisterPage />} />
+                        <Route path="/password/forgot" element={<ForgotPasswordPage />} />
+                        <Route path="*" element={<NotFoundPage />} />
+                    </Route>
+                    <Route path="/" element={<ProtectedLayout />}>
+                        <Route path="dashboard" element={<Dashboard />} />
+                        <Route path="family" element={<FamilyPage />}>
+                            <Route index path="" element={<PersonsList />} />
+                            <Route path="person/new" element={<PersonAdd />} />
+                            <Route path="person/edit/:id" element={<PersonEdit />} />
+                        </Route>
+                        <Route path="events" element={<EventsPage />}>
+                            <Route index path="" element={<EventsList />} />
+                            <Route path="new" element={<EventAdd />} />
+                            <Route path="edit/:id" element={<EventEdit />} />
+                        </Route>
+                        <Route path="services" element={<ServicesPage />}>
+                            <Route index path="" element={<ServicesList />} />
+                            <Route path="new" element={<ServiceAdd />} />
+                            <Route path="edit/:id" element={<ServiceEdit />} />
+                        </Route>
+                        <Route path="account" element={<AccountPage />} />
+                        <Route path="*" element={<NotFoundPage />} />
+                    </Route>
+                </Routes>
+            </Router>
+        </div>
     )
 }
 

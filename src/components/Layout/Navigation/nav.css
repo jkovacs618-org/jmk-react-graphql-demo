@@ -1,6 +1,5 @@
 .nav-link {
-    @apply
-    px-3
+    @apply px-3
     py-2
     rounded
     text-sm
@@ -13,8 +12,7 @@
 }
 
 a.nav-link.active {
-    @apply
-    bg-white
+    @apply bg-white
     text-slate-900;
 }
 
@@ -24,7 +22,7 @@ a.nav-link.active {
 }
 
 div.side-menu-link > a > div {
-    @apply border-l-4 border-transparent
+    @apply border-l-4 border-transparent;
 }
 
 div.side-menu-link > a.active > div {

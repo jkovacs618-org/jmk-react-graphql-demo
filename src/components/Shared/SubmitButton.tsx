@@ -1,11 +1,11 @@
 import React from 'react'
 
 export type BreadcrumbLink = {
-    path: string,
+    path: string
     label: string
 }
 
-const SubmitButton: React.FC<{label: string}> = (props: {label: string}) => {
+const SubmitButton: React.FC<{ label: string }> = (props: { label: string }) => {
     return (
         <button
             type="submit"

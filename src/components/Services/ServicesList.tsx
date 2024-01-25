@@ -1,19 +1,19 @@
-import { useCallback, useEffect, useState } from "react";
-import { observer } from "mobx-react";
-import { Table } from "flowbite-react";
-import { Link } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import dayjs from "dayjs";
-import Breadcrumbs from "../Layout/Content/Breadcrumbs";
-import { ApolloError, gql, useLazyQuery, useMutation } from "@apollo/client";
-import { ServiceAccount } from "../../interfaces/interfaces";
+import { useCallback, useEffect, useState } from 'react'
+import { observer } from 'mobx-react'
+import { Table } from 'flowbite-react'
+import { Link } from 'react-router-dom'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import dayjs from 'dayjs'
+import Breadcrumbs from '../Layout/Content/Breadcrumbs'
+import { ApolloError, gql, useLazyQuery, useMutation } from '@apollo/client'
+import { ServiceAccount } from '../../interfaces/interfaces'
 
 const ServicesList: React.FC = () => {
-    const [ searchQuery, setSearchQuery ] = useState('');
+    const [searchQuery, setSearchQuery] = useState('')
 
     const query = gql`
         query GetServiceAccounts($filter: String) {
-            servicesList (filter: $filter) {
+            servicesList(filter: $filter) {
                 id
                 serviceAccounts {
                     externalId
@@ -41,42 +41,42 @@ const ServicesList: React.FC = () => {
                 name
             }
         }
-    `;
-    const [executeSearch, {data, loading, error}] = useLazyQuery(query);
+    `
+    const [executeSearch, { data, loading, error }] = useLazyQuery(query)
 
     const loadListAsync = useCallback(async () => {
-        executeSearch();
-    }, [executeSearch]);
+        executeSearch()
+    }, [executeSearch])
 
     useEffect(() => {
         // console.debug('ServicesList.useEffect');
-        loadListAsync();
-        return ( () => {
+        loadListAsync()
+        return () => {
             //console.debug('ServicesList cleanup');
-        });
-    }, [loadListAsync]);
+        }
+    }, [loadListAsync])
 
     const searchSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
+        e.preventDefault()
         executeSearch({
             variables: {
-                filter: searchQuery
+                filter: searchQuery,
             },
-        });
+        })
     }
 
     const searchClear = () => {
-        setSearchQuery('');
-        executeSearch();
-        document.getElementById('servicesListSearchInput')?.focus();
+        setSearchQuery('')
+        executeSearch()
+        document.getElementById('servicesListSearchInput')?.focus()
     }
 
     const maskAccountNumber = (str: string | null) => {
         if (str) {
-            const numChars = Math.min(4, str.length);
+            const numChars = Math.min(4, str.length)
             return 'X'.repeat(str.length - numChars) + str.slice(numChars * -1)
         }
-        return '-';
+        return '-'
     }
 
     const deleteModelQuery = gql`
@@ -98,29 +98,29 @@ const ServicesList: React.FC = () => {
                 }
             }
         }
-    `;
+    `
 
     const [executeDelete] = useMutation(deleteModelQuery, {
         variables: {
             // Passed externalId in executeDelete call below.
         },
         onError: (error: ApolloError) => {
-            console.error('Service Delete Failed: error: ', error);
+            console.error('Service Delete Failed: error: ', error)
         },
         onCompleted: (data) => {
             console.debug('Service Deleted: data:', data)
             executeSearch({
                 variables: {
-                    filter: searchQuery
+                    filter: searchQuery,
                 },
-            });
-        }
-    });
+            })
+        },
+    })
 
     const breadcrumbLinks = [
-        {path: '/', label: 'Dashboard'},
-        {path: '/services', label: 'Accounts'},
-    ];
+        { path: '/', label: 'Dashboard' },
+        { path: '/services', label: 'Accounts' },
+    ]
 
     return (
         <>
@@ -142,13 +142,30 @@ const ServicesList: React.FC = () => {
             <div className="mt-2">
                 <form onSubmit={searchSubmit}>
                     <div className="relative inline-block">
-                        <input id='servicesListSearchInput' type="search" value={searchQuery} placeholder="Search..." onChange={e => setSearchQuery(e.target.value)}
-                            className="text-xs mr-2 border-slate-300 rounded" />
-                        <FontAwesomeIcon icon="times" onClick={searchClear}
-                            className={"absolute right-4 text-slate-400 top-2 cursor-pointer " + (searchQuery === '' ? 'hidden' : '')} />
+                        <input
+                            id="servicesListSearchInput"
+                            type="search"
+                            value={searchQuery}
+                            placeholder="Search..."
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="text-xs mr-2 border-slate-300 rounded"
+                        />
+                        <FontAwesomeIcon
+                            icon="times"
+                            onClick={searchClear}
+                            className={
+                                'absolute right-4 text-slate-400 top-2 cursor-pointer ' +
+                                (searchQuery === '' ? 'hidden' : '')
+                            }
+                        />
                     </div>
                     <div className="inline-block">
-                        <button type="submit" className="py-1 px-3 bg-slate-300 hover:bg-slate-200 text-slate-600 text-sm">Search</button>
+                        <button
+                            type="submit"
+                            className="py-1 px-3 bg-slate-300 hover:bg-slate-200 text-slate-600 text-sm"
+                        >
+                            Search
+                        </button>
                     </div>
                 </form>
             </div>
@@ -156,103 +173,126 @@ const ServicesList: React.FC = () => {
             <div>
                 <div className="d-inline col-4 text-sm mt-2">
                     Total items: &nbsp;
-                    <span className="badge badge-info">{data && data.servicesList ? data.servicesList.count : 0}</span>
+                    <span className="badge badge-info">
+                        {data && data.servicesList ? data.servicesList.count : 0}
+                    </span>
                 </div>
             </div>
 
-            {loading && (
-                <div className="hidden">
-                    Loading Accounts...
-                </div>
-            )}
+            {loading && <div className="hidden">Loading Accounts...</div>}
 
-            {error && (
-                <div>
-                    Error: ${error.message}
-                </div>
-            )}
+            {error && <div>Error: ${error.message}</div>}
 
             {data && (
-            <div className="mt-3 mb-10">
-                <div className="overflow-x-auto">
-                    <Table striped className="text-left">
-                        <Table.Head>
-                            <Table.HeadCell className="py-3">
-                                Organization
-                            </Table.HeadCell>
-                            <Table.HeadCell>
-                                Description
-                            </Table.HeadCell>
-                            <Table.HeadCell>
-                                Service Type
-                            </Table.HeadCell>
-                            <Table.HeadCell>
-                                Account Number
-                            </Table.HeadCell>
-                            <Table.HeadCell>
-                                Start
-                            </Table.HeadCell>
-                            <Table.HeadCell>
-                                End
-                            </Table.HeadCell>
-                            <Table.HeadCell>
-                                <span className="sr-only">Actions</span>
-                            </Table.HeadCell>
-                        </Table.Head>
+                <div className="mt-3 mb-10">
+                    <div className="overflow-x-auto">
+                        <Table striped className="text-left">
+                            <Table.Head>
+                                <Table.HeadCell className="py-3">Organization</Table.HeadCell>
+                                <Table.HeadCell>Description</Table.HeadCell>
+                                <Table.HeadCell>Service Type</Table.HeadCell>
+                                <Table.HeadCell>Account Number</Table.HeadCell>
+                                <Table.HeadCell>Start</Table.HeadCell>
+                                <Table.HeadCell>End</Table.HeadCell>
+                                <Table.HeadCell>
+                                    <span className="sr-only">Actions</span>
+                                </Table.HeadCell>
+                            </Table.Head>
 
-                        <Table.Body className="divide-y">
-                            {data.servicesList.serviceAccounts.map((serviceAccount: ServiceAccount) => (
-                                <Table.Row key={serviceAccount.externalId} className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                    <Table.Cell className="whitespace-nowrap text-gray-900 dark:text-white py-2">
-                                        <Link to={`/services/edit/${serviceAccount.externalId}`}>
-                                            <span className="font-medium">
-                                                {serviceAccount.organization ? serviceAccount.organization.name : '-'}<br/>
-                                            </span>
-                                        </Link>
-                                    </Table.Cell>
-                                    <Table.Cell>
-                                        <span className="text-xs">
-                                            {serviceAccount.description ? serviceAccount.description : '-'}
-                                        </span>
-                                    </Table.Cell>
-                                    <Table.Cell>
-                                        <span className="text-xs">
-                                            {serviceAccount.serviceType ? serviceAccount.serviceType.name : '-'}
-                                        </span>
-                                    </Table.Cell>
-                                    <Table.Cell>
-                                        {serviceAccount.accountNumber ?
-                                            maskAccountNumber(serviceAccount.accountNumber)
-                                        :
-                                            '-'
-                                        }
-                                    </Table.Cell>
-                                    <Table.Cell>
-                                        {serviceAccount.startDate ? dayjs(serviceAccount.startDate).format('M/D/YY') : '-'}
-                                    </Table.Cell>
-                                    <Table.Cell>
-                                        {serviceAccount.endDate ? dayjs(serviceAccount.endDate).format('M/D/YY') : '-'}
-                                    </Table.Cell>
-                                    <Table.Cell>
-                                        <Link to={`/services/edit/${serviceAccount.externalId}`}>
-                                            <FontAwesomeIcon icon="pen-to-square" className="text-gray-400 text-lg mr-3" title='Edit Account' />
-                                        </Link>
-                                        <Link to="#" onClick={() => { if(confirm('Are you sure?')) { executeDelete({variables: {externalId: serviceAccount.externalId!} }); } }}>
-                                            <FontAwesomeIcon icon="trash-can" className="text-gray-400 text-lg" title='Remove Account' />
-                                        </Link>
-                                    </Table.Cell>
-                                </Table.Row>
-                            ))}
-                        </Table.Body>
-                    </Table>
+                            <Table.Body className="divide-y">
+                                {data.servicesList.serviceAccounts.map(
+                                    (serviceAccount: ServiceAccount) => (
+                                        <Table.Row
+                                            key={serviceAccount.externalId}
+                                            className="bg-white dark:border-gray-700 dark:bg-gray-800"
+                                        >
+                                            <Table.Cell className="whitespace-nowrap text-gray-900 dark:text-white py-2">
+                                                <Link
+                                                    to={`/services/edit/${serviceAccount.externalId}`}
+                                                >
+                                                    <span className="font-medium">
+                                                        {serviceAccount.organization
+                                                            ? serviceAccount.organization.name
+                                                            : '-'}
+                                                        <br />
+                                                    </span>
+                                                </Link>
+                                            </Table.Cell>
+                                            <Table.Cell>
+                                                <span className="text-xs">
+                                                    {serviceAccount.description
+                                                        ? serviceAccount.description
+                                                        : '-'}
+                                                </span>
+                                            </Table.Cell>
+                                            <Table.Cell>
+                                                <span className="text-xs">
+                                                    {serviceAccount.serviceType
+                                                        ? serviceAccount.serviceType.name
+                                                        : '-'}
+                                                </span>
+                                            </Table.Cell>
+                                            <Table.Cell>
+                                                {serviceAccount.accountNumber
+                                                    ? maskAccountNumber(
+                                                          serviceAccount.accountNumber
+                                                      )
+                                                    : '-'}
+                                            </Table.Cell>
+                                            <Table.Cell>
+                                                {serviceAccount.startDate
+                                                    ? dayjs(serviceAccount.startDate).format(
+                                                          'M/D/YY'
+                                                      )
+                                                    : '-'}
+                                            </Table.Cell>
+                                            <Table.Cell>
+                                                {serviceAccount.endDate
+                                                    ? dayjs(serviceAccount.endDate).format('M/D/YY')
+                                                    : '-'}
+                                            </Table.Cell>
+                                            <Table.Cell>
+                                                <Link
+                                                    to={`/services/edit/${serviceAccount.externalId}`}
+                                                >
+                                                    <FontAwesomeIcon
+                                                        icon="pen-to-square"
+                                                        className="text-gray-400 text-lg mr-3"
+                                                        title="Edit Account"
+                                                    />
+                                                </Link>
+                                                <Link
+                                                    to="#"
+                                                    onClick={() => {
+                                                        if (confirm('Are you sure?')) {
+                                                            executeDelete({
+                                                                variables: {
+                                                                    externalId:
+                                                                        serviceAccount.externalId!,
+                                                                },
+                                                            })
+                                                        }
+                                                    }}
+                                                >
+                                                    <FontAwesomeIcon
+                                                        icon="trash-can"
+                                                        className="text-gray-400 text-lg"
+                                                        title="Remove Account"
+                                                    />
+                                                </Link>
+                                            </Table.Cell>
+                                        </Table.Row>
+                                    )
+                                )}
+                            </Table.Body>
+                        </Table>
+                    </div>
                 </div>
-            </div>
             )}
-
         </>
-    );
-};
+    )
+}
 
-const ServicesListObserver = observer(ServicesList);
+const ServicesListObserver = observer(ServicesList)
 
-export default ServicesListObserver;
+export default ServicesListObserver

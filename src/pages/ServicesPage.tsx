@@ -4,7 +4,7 @@ import { Outlet } from 'react-router-dom'
 
 const Services: React.FC = () => {
     return (
-        <div style={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'left', alignItems: 'left', flexDirection: 'column' }}>
+        <div className="relative flex flex-col">
             <Outlet />
         </div>
     )

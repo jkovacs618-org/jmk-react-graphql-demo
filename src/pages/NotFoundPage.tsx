@@ -8,14 +8,14 @@ const NotFoundPage: React.FC = () => {
     }
 
     return (
-        <div style={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
+        <div className="relative flex flex-col justify-center items-center">
             <div className="mt-6">
                 <h1 className="text-3xl font-bold">Page Not Found</h1>
             </div>
 
             <div className="mt-6">
                 <a className="cursor-pointer" onClick={() => redirectToHomePage()}>
-                    Return to Homepage
+                    Return to Home Page
                 </a>
             </div>
         </div>

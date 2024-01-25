@@ -1,10 +1,10 @@
-import { observable, action, computed, makeObservable } from "mobx"
-import { createContext } from "react"
-import { Event, Calendar } from '../interfaces/interfaces';
+import { observable, action, computed, makeObservable } from 'mobx'
+import { createContext } from 'react'
+import { Event, Calendar } from '../interfaces/interfaces'
 
 class EventsStore {
-    events: Event[] = [];
-    calendars: Calendar[] = [];
+    events: Event[] = []
+    calendars: Calendar[] = []
 
     constructor() {
         makeObservable(this, {
@@ -23,11 +23,11 @@ class EventsStore {
     }
 
     setEvents = (newEvents: Event[]) => {
-        this.events = newEvents;
+        this.events = newEvents
     }
 
     setCalendars = (newCalendars: Calendar[]) => {
-        this.calendars = newCalendars;
+        this.calendars = newCalendars
     }
 }
 
