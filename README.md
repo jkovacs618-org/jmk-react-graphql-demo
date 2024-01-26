@@ -9,6 +9,7 @@ Technologies used:
 * Front-end: React, TypeScript, Apollo Client (GraphQL), MobX (store), Vite, Yarn
 * Back-end: Apollo GraphQL Server, Prisma (ORM), SQLite (file DB), Yarn
 * UI/Styles: Tailwind CSS, Flowbite, FontAwesome
+* Testing: Jest, ts-jest, React Testing Library, Apollo Client mocks
 
 ## Prerequisites:
 
@@ -97,8 +98,19 @@ The Demo User credentials will be filled in to the Login form by default:
 * Email: user@example.org<br/>
 * Password: password<br/>
 
-Explore the Family, Events, and Accounts sections, with search, add, edit, and delete actions for each.<br/>
+Explore the Family, Events, and Accounts sections, with search, add, edit, and delete actions for each.
 
+## Run Jest tests for React app
+
+Included tests for pages
+
+```bash
+cd path/to/repo/
+yarn test
+```
+
+Expects 4 tests to Pass for Login, Register, Dashboard, and Page Not Found. Uses mock data for Apollo Client queries.
+<br/>
 
 # Optional Actions:
 
