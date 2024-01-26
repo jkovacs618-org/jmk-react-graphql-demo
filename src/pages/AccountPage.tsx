@@ -1,5 +1,5 @@
 import React from 'react'
-import AccountInfo from '../components/Account/AccountInfo'
+import AccountInfo from '@/components/Account/AccountInfo'
 
 const AccountPage: React.FC = () => {
     return (

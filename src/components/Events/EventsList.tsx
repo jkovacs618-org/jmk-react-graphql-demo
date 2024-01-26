@@ -4,9 +4,9 @@ import { Table } from 'flowbite-react'
 import { Link } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import dayjs from 'dayjs'
-import Breadcrumbs from '../Layout/Content/Breadcrumbs'
+import Breadcrumbs from '@/components/Layout/Content/Breadcrumbs'
 import { useLazyQuery, gql, useMutation, ApolloError } from '@apollo/client'
-import { Event } from '../../interfaces/interfaces'
+import { Event } from '@/interfaces/interfaces'
 
 const EventsList: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState('')

@@ -1,5 +1,5 @@
 import React from 'react'
-import DashboardTile from '../components/Dashboard/DashboardTile'
+import DashboardTile from '@/components/Dashboard/DashboardTile'
 
 const Dashboard: React.FC = () => {
     return (

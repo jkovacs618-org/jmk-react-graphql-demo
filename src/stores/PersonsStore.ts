@@ -1,6 +1,6 @@
 import { observable, action, makeObservable } from 'mobx'
 import { createContext } from 'react'
-import { Person } from '../interfaces/interfaces'
+import { Person } from '@/interfaces/interfaces'
 
 class PersonsStore {
     persons: Person[] = []

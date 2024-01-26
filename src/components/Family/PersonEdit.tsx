@@ -1,13 +1,13 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
-import PersonsStore from '../../stores/PersonsStore'
+import PersonsStore from '@/stores/PersonsStore'
 import { observer } from 'mobx-react'
 import { Checkbox, Label, Select, TextInput } from 'flowbite-react'
 import { useNavigate, useParams } from 'react-router-dom'
 import dayjs from 'dayjs'
-import Breadcrumbs from '../Layout/Content/Breadcrumbs'
-import SubmitButton from '../Shared/SubmitButton'
-import CancelButton from '../Shared/CancelButton'
-import { Person } from '../../interfaces/interfaces'
+import Breadcrumbs from '@/components/Layout/Content/Breadcrumbs'
+import SubmitButton from '@/components/Shared/SubmitButton'
+import CancelButton from '@/components/Shared/CancelButton'
+import { Person } from '@/interfaces/interfaces'
 import { ApolloError, gql, useLazyQuery, useMutation } from '@apollo/client'
 
 const PersonEditForm: React.FC = () => {

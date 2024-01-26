@@ -1,10 +1,11 @@
 import React from 'react'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
+import '@/plugins/fontawesome'
 
 import GuestLayout from './components/Layout/GuestLayout'
 import ProtectedLayout from './components/Layout/ProtectedLayout'
-import LoginPage from './pages/LoginPage'
-import RegisterPage from './pages/RegisterPage'
+import { LoginPage } from './pages/LoginPage'
+import { RegisterPage } from './pages/RegisterPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import NotFoundPage from './pages/NotFoundPage'
 

@@ -1,6 +1,6 @@
 import { observable, action, computed, makeObservable } from 'mobx'
 import { createContext } from 'react'
-import { Event, Calendar } from '../interfaces/interfaces'
+import { Event, Calendar } from '@/interfaces/interfaces'
 
 class EventsStore {
     events: Event[] = []

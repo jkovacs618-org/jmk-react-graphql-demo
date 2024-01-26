@@ -1,12 +1,12 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
-import EventsStore from '../../stores/EventsStore'
+import EventsStore from '@/stores/EventsStore'
 import { observer } from 'mobx-react'
 import { Label, Select, TextInput } from 'flowbite-react'
 import { useNavigate } from 'react-router-dom'
-import Breadcrumbs from '../Layout/Content/Breadcrumbs'
-import SubmitButton from '../Shared/SubmitButton'
-import CancelButton from '../Shared/CancelButton'
-import { Calendar, Event } from '../../interfaces/interfaces'
+import Breadcrumbs from '@/components/Layout/Content/Breadcrumbs'
+import SubmitButton from '@/components/Shared/SubmitButton'
+import CancelButton from '@/components/Shared/CancelButton'
+import { Calendar, Event } from '@/interfaces/interfaces'
 import { ApolloError, gql, useLazyQuery, useMutation } from '@apollo/client'
 
 const EventAddForm: React.FC = () => {

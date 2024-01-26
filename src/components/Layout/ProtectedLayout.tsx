@@ -1,6 +1,6 @@
 import React from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
-import { useAuth } from '../../contexts/AuthContext'
+import { useAuth } from '@/contexts/AuthContext'
 import Navigation from './Navigation/Navigation'
 
 const ProtectedLayout: React.FC = () => {

@@ -1,6 +1,6 @@
 import React, { ReactNode, useContext, useState } from 'react'
-import { AUTH_TOKEN } from '../setup'
-import { AuthUser, IAuthContext } from '../interfaces/Auth'
+import { AUTH_TOKEN } from '@/constants'
+import { AuthUser, IAuthContext } from '@/interfaces/Auth'
 
 const AuthContext = React.createContext({
     authUser: null,

@@ -1,7 +1,7 @@
 import React from 'react'
 import { NavLink, Link, useNavigate } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useAuth } from '../../../contexts/AuthContext'
+import { useAuth } from '@/contexts/AuthContext'
 
 const NavigationUser: React.FC = () => {
     const { authUser, setAuthUser, setAuthToken } = useAuth()

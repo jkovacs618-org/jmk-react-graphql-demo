@@ -1,10 +1,10 @@
 import React from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useSideMenu } from '../../../contexts/SideMenuContext'
 import SlidingPane from 'react-sliding-pane'
-import SideMenuLink from './SideMenuLink'
 import 'react-sliding-pane/dist/react-sliding-pane.css'
-import { useAuth } from '../../../contexts/AuthContext'
+import SideMenuLink from './SideMenuLink'
+import { useSideMenu } from '@/contexts/SideMenuContext'
+import { useAuth } from '@/contexts/AuthContext'
 
 const SideMenu: React.FC = () => {
     const { menuState, closeMenu } = useSideMenu()

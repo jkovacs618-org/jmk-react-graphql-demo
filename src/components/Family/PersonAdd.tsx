@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react'
-import PersonsStore from '../../stores/PersonsStore'
+import PersonsStore from '@/stores/PersonsStore'
 import { observer } from 'mobx-react'
 import { Checkbox, Label, Select, TextInput } from 'flowbite-react'
 import { useNavigate } from 'react-router-dom'
-import Breadcrumbs from '../Layout/Content/Breadcrumbs'
-import SubmitButton from '../Shared/SubmitButton'
-import CancelButton from '../Shared/CancelButton'
-import { Person } from '../../interfaces/interfaces'
+import Breadcrumbs from '@/components/Layout/Content/Breadcrumbs'
+import SubmitButton from '@/components/Shared/SubmitButton'
+import CancelButton from '@/components/Shared/CancelButton'
+import { Person } from '@/interfaces/interfaces'
 import { ApolloError, gql, useMutation } from '@apollo/client'
 
 const PersonAddForm: React.FC = () => {

@@ -1,6 +1,6 @@
 import { observable, action, computed, makeObservable } from 'mobx'
 import { createContext } from 'react'
-import { ServiceAccount, Organization, ServiceType } from '../interfaces/interfaces'
+import { ServiceAccount, Organization, ServiceType } from '@/interfaces/interfaces'
 
 class ServicesStore {
     serviceAccounts: ServiceAccount[] = []
