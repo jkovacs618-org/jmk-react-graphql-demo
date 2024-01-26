@@ -1,7 +1,7 @@
 import { ApolloClient, ApolloLink, createHttpLink, InMemoryCache } from '@apollo/client'
 import { setContext } from '@apollo/client/link/context'
 import { onError } from '@apollo/client/link/error'
-import { VITE_GRAPHQL_BASE_URL, AUTH_TOKEN } from '../setup'
+import { VITE_GRAPHQL_BASE_URL, AUTH_TOKEN } from '@/constants'
 // import { split } from '@apollo/client';
 // import { WebSocketLink } from '@apollo/client/link/ws';
 // import { getMainDefinition } from '@apollo/client/utilities';
