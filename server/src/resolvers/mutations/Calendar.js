@@ -1,4 +1,3 @@
-
 export async function createCalendar(parent, args, context) {
   const calendarInput = args.calendar;
   const newCalendar = await context.prisma.calendar.create({
@@ -6,15 +5,15 @@ export async function createCalendar(parent, args, context) {
       ...calendarInput,
       accountId: context.user.accountId,
       createdUserId: context.userId,
-    }
+    },
   });
 
   if (newCalendar) {
     const calendar = await context.prisma.calendar.update({
-      where: {id: newCalendar.id},
+      where: { id: newCalendar.id },
       data: {
-        externalId: 'Calendar' + newCalendar.id
-      }
+        externalId: 'Calendar' + newCalendar.id,
+      },
     });
     return calendar;
   }
@@ -26,16 +25,13 @@ export async function updateCalendar(parent, args, context) {
   if (model) {
     const calendarInput = args.calendar;
     const updatedCalendar = await context.prisma.calendar.update({
-      where: {id: model.id},
+      where: { id: model.id },
       data: calendarInput,
     });
 
     return updatedCalendar;
-  }
-  else {
-    throw new Error(
-      `Failed to find Calendar by ID: ${args.externalId} to update`
-    );
+  } else {
+    throw new Error(`Failed to find Calendar by ID: ${args.externalId} to update`);
   }
 }
 
@@ -43,18 +39,15 @@ export async function deleteCalendar(parent, args, context) {
   const model = await getCalendar(args.externalId, context);
   if (model) {
     const deletedModel = await context.prisma.calendar.update({
-      where: {id: model.id},
+      where: { id: model.id },
       data: {
         deleted: true,
         deletedAt: new Date(),
-      }
+      },
     });
     return deletedModel;
-  }
-  else {
-    throw new Error(
-      `Failed to find Calendar by ID: ${args.externalId} to delete`
-    );
+  } else {
+    throw new Error(`Failed to find Calendar by ID: ${args.externalId} to delete`);
   }
 }
 
@@ -65,7 +58,7 @@ async function getCalendar(externalId, context) {
       externalId: externalId,
       accountId: context.user.accountId,
       deleted: false,
-    }
+    },
   });
   return model;
 }

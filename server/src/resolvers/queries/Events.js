@@ -3,14 +3,12 @@ export const eventsList = async (parent, args, context) => {
     AND: [
       { accountId: context.user.accountId },
       { deleted: false },
-      args.filter ? {
-        OR: [
-          { title: { contains: args.filter } },
-          { location: { contains: args.filter } },
-        ]
-      }
+      args.filter
+        ? {
+            OR: [{ title: { contains: args.filter } }, { location: { contains: args.filter } }],
+          }
         : {},
-    ]
+    ],
   };
 
   const events = await context.prisma.event.findMany({
@@ -26,7 +24,7 @@ export const eventsList = async (parent, args, context) => {
   return {
     id: `events:${JSON.stringify(args)}`,
     events,
-    count
+    count,
   };
 };
 
@@ -36,7 +34,7 @@ export const events = (parent, args, context) => {
     deleted: false,
   };
   return context.prisma.event.findMany({
-    where: where
+    where: where,
   });
 };
 
@@ -48,6 +46,6 @@ export const event = (parent, args, context) => {
     deleted: false,
   };
   return context.prisma.event.findFirst({
-    where: where
+    where: where,
   });
 };

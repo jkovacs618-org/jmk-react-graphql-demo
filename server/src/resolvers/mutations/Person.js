@@ -1,7 +1,6 @@
-
 export async function createPerson(parent, args, context) {
   // Construct input model with every property except 'relationship' input:
-  const {relationship, ...personInput} = args.person;
+  const { relationship, ...personInput } = args.person;
   const accountId = context.user.accountId;
   const userId = context.userId;
 
@@ -14,8 +13,7 @@ export async function createPerson(parent, args, context) {
       if (newPersonRelationship) {
         return newPerson;
       }
-    }
-    else {
+    } else {
       return newPerson;
     }
   }
@@ -24,8 +22,8 @@ export async function createPerson(parent, args, context) {
 
 export async function _createPersonOnly(context, accountId, userId, personInput) {
   // Convert date/time inputs from String to Date objects for schema DateTime columns.
-  const birthDate = (personInput.birthDate ? new Date(personInput.birthDate) : null);
-  const deathDate = (personInput.deathDate ? new Date(personInput.deathDate) : null);
+  const birthDate = personInput.birthDate ? new Date(personInput.birthDate) : null;
+  const deathDate = personInput.deathDate ? new Date(personInput.deathDate) : null;
 
   const newPerson = await context.prisma.person.create({
     data: {
@@ -34,14 +32,14 @@ export async function _createPersonOnly(context, accountId, userId, personInput)
       birthDate: birthDate,
       deathDate: deathDate,
       createdUserId: userId,
-    }
+    },
   });
   if (newPerson) {
     const updatedPerson = await context.prisma.person.update({
-      where: {id: newPerson.id},
+      where: { id: newPerson.id },
       data: {
-        externalId: 'Person' + newPerson.id
-      }
+        externalId: 'Person' + newPerson.id,
+      },
     });
     if (updatedPerson) {
       return updatedPerson;
@@ -54,19 +52,19 @@ export async function updatePerson(parent, args, context) {
   const model = await getPerson(args.externalId, context);
   if (model) {
     // Construct input model with every property except 'relationship' input:
-    const {relationship, ...personInput} = args.person;
+    const { relationship, ...personInput } = args.person;
 
     // Convert date/time inputs from String to Date objects for schema DateTime columns.
-    const birthDate = (personInput.birthDate ? new Date(personInput.birthDate) : null);
-    const deathDate = (personInput.deathDate ? new Date(personInput.deathDate) : null);
+    const birthDate = personInput.birthDate ? new Date(personInput.birthDate) : null;
+    const deathDate = personInput.deathDate ? new Date(personInput.deathDate) : null;
 
     const updatedPerson = await context.prisma.person.update({
-      where: {id: model.id},
+      where: { id: model.id },
       data: {
         ...personInput,
         birthDate: birthDate,
         deathDate: deathDate,
-      }
+      },
     });
 
     // After Person is updated, conditionally sync the PersonRelationship record between Self Person and New Person.
@@ -76,15 +74,14 @@ export async function updatePerson(parent, args, context) {
       const personRelationship = await getPersonRelationship(context, selfPerson, updatedPerson);
       if (!personRelationship) {
         await createPersonRelationship(context, selfPerson, updatedPerson, relationship);
-      }
-      else {
+      } else {
         if (personRelationship.type !== relationship) {
           const deletedRecord = await context.prisma.personRelationship.update({
-            where: {id: personRelationship.id},
+            where: { id: personRelationship.id },
             data: {
               deleted: true,
               deletedAt: new Date(),
-            }
+            },
           });
           if (deletedRecord) {
             await createPersonRelationship(context, selfPerson, updatedPerson, relationship);
@@ -94,17 +91,14 @@ export async function updatePerson(parent, args, context) {
     }
 
     return updatedPerson;
-  }
-  else {
-    throw new Error(
-      `Failed to find Person by ID: ${args.externalId} to update`
-    );
+  } else {
+    throw new Error(`Failed to find Person by ID: ${args.externalId} to update`);
   }
 }
 
 export async function deletePerson(parent, args, context) {
   const selfPerson = await context.prisma.person.findFirst({
-    where: { id: context.user.personId }
+    where: { id: context.user.personId },
   });
   if (selfPerson.externalId === args.externalId) {
     throw new Error('Cannot delete Person for current user');
@@ -113,18 +107,15 @@ export async function deletePerson(parent, args, context) {
   const model = await getPerson(args.externalId, context);
   if (model) {
     const deletedModel = await context.prisma.person.update({
-      where: {id: model.id},
+      where: { id: model.id },
       data: {
         deleted: true,
         deletedAt: new Date(),
-      }
+      },
     });
     return deletedModel;
-  }
-  else {
-    throw new Error(
-      `Failed to find Person by ID: ${args.externalId} to delete`
-    );
+  } else {
+    throw new Error(`Failed to find Person by ID: ${args.externalId} to delete`);
   }
 }
 
@@ -135,7 +126,7 @@ async function getPerson(externalId, context) {
       externalId: externalId,
       accountId: context.user.accountId,
       deleted: false,
-    }
+    },
   });
   return model;
 }
@@ -145,7 +136,7 @@ async function getSelfPerson(context) {
     where: {
       id: context.user.personId,
       accountId: context.user.accountId,
-    }
+    },
   });
   return selfPerson;
 }
@@ -156,7 +147,7 @@ export async function createPersonRelationship(context, person1, person2, relati
       person1Id: person1.id,
       person2Id: person2.id,
       type: relationship,
-    }
+    },
   });
   return newPersonRelationship;
 }
@@ -167,7 +158,7 @@ async function getPersonRelationship(context, person1, person2) {
       person1Id: person1.id,
       person2Id: person2.id,
       deleted: false,
-    }
+    },
   });
   return personRelationship;
 }

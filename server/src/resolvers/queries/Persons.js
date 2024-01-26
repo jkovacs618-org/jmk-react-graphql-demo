@@ -1,6 +1,6 @@
 export const persons = (parent, args, context) => {
   return context.prisma.person.findMany({
-    where: { accountId: context.user.accountId, deleted: false }
+    where: { accountId: context.user.accountId, deleted: false },
   });
 };
 
@@ -12,7 +12,7 @@ export const person = (parent, args, context) => {
     deleted: false,
   };
   return context.prisma.person.findFirst({
-    where: where
+    where: where,
   });
 };
 
@@ -21,17 +21,17 @@ export const personsList = async (parent, args, context) => {
     AND: [
       { accountId: context.user.accountId },
       { deleted: false },
-      args.filter ? {
-        OR: [
-          { nameFirst: { contains: args.filter } },
-          { nameMiddle: { contains: args.filter } },
-          { nameLast: { contains: args.filter } },
-          { gender: { equals: args.filter } },
-          // Not Working: { person2Relationship: { type: { contains: args.filter } } },
-        ]
-      }
+      args.filter
+        ? {
+            OR: [
+              { nameFirst: { contains: args.filter } },
+              { nameMiddle: { contains: args.filter } },
+              { nameLast: { contains: args.filter } },
+              { gender: { equals: args.filter } },
+            ],
+          }
         : {},
-    ]
+    ],
   };
 
   const persons = await context.prisma.person.findMany({
@@ -47,6 +47,6 @@ export const personsList = async (parent, args, context) => {
   return {
     id: `persons:${JSON.stringify(args)}`,
     persons,
-    count
+    count,
   };
 };

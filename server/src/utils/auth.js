@@ -27,7 +27,7 @@ export function getUserId(req, authToken) {
 export async function getUser(userId, prisma) {
   if (userId) {
     const user = await prisma.user.findUnique({
-      where: { id: userId }
+      where: { id: userId },
     });
     return user;
   }

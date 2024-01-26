@@ -1,11 +1,10 @@
-
 export async function createServiceAccount(parent, args, context) {
   // Construct input model with every property except specific input fields not on ServiceAccount:
-  const {organizationExternalId, serviceTypeExternalId, newOrganizationName, ...serviceAccountInput} = args.serviceAccount;
+  const { organizationExternalId, serviceTypeExternalId, newOrganizationName, ...serviceAccountInput } = args.serviceAccount;
 
   // Convert date/time inputs from String to Date objects for schema DateTime columns.
-  const startDate = (serviceAccountInput.startDate ? new Date(serviceAccountInput.startDate) : null);
-  const endDate = (serviceAccountInput.endDate ? new Date(serviceAccountInput.endDate) : null);
+  const startDate = serviceAccountInput.startDate ? new Date(serviceAccountInput.startDate) : null;
+  const endDate = serviceAccountInput.endDate ? new Date(serviceAccountInput.endDate) : null;
 
   // Look up the Organization record by externalId to get the organization.id or null for ServiceAccount.
   // Create a new Organization for this Account if the organizationExternalId value is 'NEW' and newOrganizationName is set.
@@ -13,17 +12,16 @@ export async function createServiceAccount(parent, args, context) {
   if (organizationExternalId === 'NEW') {
     if (newOrganizationName !== '') {
       const organization = await createOrganization(newOrganizationName, context);
-      organizationId = (organization ? organization.id : null);
+      organizationId = organization ? organization.id : null;
     }
-  }
-  else {
+  } else {
     const organization = await getOrganization(organizationExternalId, context);
-    organizationId = (organization ? organization.id : null);
+    organizationId = organization ? organization.id : null;
   }
 
   // Look up the ServiceType record by externalId to get the serviceType.id or null for ServiceAccount.
   const serviceType = await getServiceType(serviceTypeExternalId, context);
-  const serviceTypeId = (serviceType ? serviceType.id : null);
+  const serviceTypeId = serviceType ? serviceType.id : null;
 
   const newServiceAccount = await context.prisma.serviceAccount.create({
     data: {
@@ -34,15 +32,15 @@ export async function createServiceAccount(parent, args, context) {
       startDate: startDate,
       endDate: endDate,
       createdUserId: context.userId,
-    }
+    },
   });
 
   if (newServiceAccount) {
     const serviceAccount = await context.prisma.serviceAccount.update({
-      where: {id: newServiceAccount.id},
+      where: { id: newServiceAccount.id },
       data: {
-        externalId: 'ServiceAccount' + newServiceAccount.id
-      }
+        externalId: 'ServiceAccount' + newServiceAccount.id,
+      },
     });
     return serviceAccount;
   }
@@ -53,11 +51,11 @@ export async function updateServiceAccount(parent, args, context) {
   const model = await getServiceAccount(args.externalId, context);
   if (model) {
     // Construct input model with every property except specific input fields not on ServiceAccount:
-    const {organizationExternalId, serviceTypeExternalId, newOrganizationName, ...serviceAccountInput} = args.serviceAccount;
+    const { organizationExternalId, serviceTypeExternalId, newOrganizationName, ...serviceAccountInput } = args.serviceAccount;
 
     // Convert date/time inputs from String to Date objects for schema DateTime columns.
-    const startDate = (serviceAccountInput.startDate ? new Date(serviceAccountInput.startDate) : null);
-    const endDate = (serviceAccountInput.endDate ? new Date(serviceAccountInput.endDate) : null);
+    const startDate = serviceAccountInput.startDate ? new Date(serviceAccountInput.startDate) : null;
+    const endDate = serviceAccountInput.endDate ? new Date(serviceAccountInput.endDate) : null;
 
     // Look up the Organization record by externalId to get the organization.id or null for ServiceAccount.
     // Create a new Organization for this Account if the organizationExternalId value is 'NEW' and newOrganizationName is set.
@@ -65,35 +63,31 @@ export async function updateServiceAccount(parent, args, context) {
     if (organizationExternalId === 'NEW') {
       if (newOrganizationName !== '') {
         const organization = await createOrganization(newOrganizationName, context);
-        organizationId = (organization ? organization.id : null);
+        organizationId = organization ? organization.id : null;
       }
-    }
-    else {
+    } else {
       const organization = await getOrganization(organizationExternalId, context);
-      organizationId = (organization ? organization.id : null);
+      organizationId = organization ? organization.id : null;
     }
 
     // Look up the ServiceType record by externalId to get the serviceType.id or null for ServiceAccount.
     const serviceType = await getServiceType(serviceTypeExternalId, context);
-    const serviceTypeId = (serviceType ? serviceType.id : null);
+    const serviceTypeId = serviceType ? serviceType.id : null;
 
     const updatedServiceAccount = await context.prisma.serviceAccount.update({
-      where: {id: model.id},
+      where: { id: model.id },
       data: {
         ...serviceAccountInput,
         organizationId: organizationId,
         serviceTypeId: serviceTypeId,
         startDate: startDate,
         endDate: endDate,
-      }
+      },
     });
 
     return updatedServiceAccount;
-  }
-  else {
-    throw new Error(
-      `Failed to find ServiceAccount by ID: ${args.externalId} to update`
-    );
+  } else {
+    throw new Error(`Failed to find ServiceAccount by ID: ${args.externalId} to update`);
   }
 }
 
@@ -101,18 +95,15 @@ export async function deleteServiceAccount(parent, args, context) {
   const model = await getServiceAccount(args.externalId, context);
   if (model) {
     const deletedModel = await context.prisma.serviceAccount.update({
-      where: {id: model.id},
+      where: { id: model.id },
       data: {
         deleted: true,
         deletedAt: new Date(),
-      }
+      },
     });
     return deletedModel;
-  }
-  else {
-    throw new Error(
-      `Failed to find ServiceAccount by ID: ${args.externalId} to delete`
-    );
+  } else {
+    throw new Error(`Failed to find ServiceAccount by ID: ${args.externalId} to delete`);
   }
 }
 
@@ -123,7 +114,7 @@ export async function getServiceAccount(externalId, context) {
       externalId: externalId,
       accountId: context.user.accountId,
       deleted: false,
-    }
+    },
   });
   return model;
 }
@@ -136,13 +127,10 @@ async function getOrganization(externalId, context) {
         { externalId: externalId },
         { deleted: false },
         {
-          OR: [
-            { accountId: 1},
-            { accountId: context.user.accountId },
-          ]
-        }
+          OR: [{ accountId: 1 }, { accountId: context.user.accountId }],
+        },
       ],
-    }
+    },
   });
   return model;
 }
@@ -155,13 +143,10 @@ async function getServiceType(externalId, context) {
         { externalId: externalId },
         { deleted: false },
         {
-          OR: [
-            { accountId: 1},
-            { accountId: context.user.accountId },
-          ]
-        }
+          OR: [{ accountId: 1 }, { accountId: context.user.accountId }],
+        },
       ],
-    }
+    },
   });
   return model;
 }
@@ -172,14 +157,14 @@ async function createOrganization(newOrganizationName, context) {
       accountId: context.user.accountId,
       name: newOrganizationName,
       createdUserId: context.userId,
-    }
+    },
   });
   if (newOrganization) {
     const organization = await context.prisma.organization.update({
-      where: {id: newOrganization.id},
+      where: { id: newOrganization.id },
       data: {
-        externalId: 'Organization' + newOrganization.id
-      }
+        externalId: 'Organization' + newOrganization.id,
+      },
     });
     return organization;
   }

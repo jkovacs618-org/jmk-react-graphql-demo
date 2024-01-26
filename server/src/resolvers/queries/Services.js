@@ -4,13 +4,10 @@ export const organizations = (parent, args, context) => {
       AND: [
         { deleted: false },
         {
-          OR: [
-            { accountId: 1 },
-            { accountId: context.user.accountId },
-          ]
-        }
-      ]
-    }
+          OR: [{ accountId: 1 }, { accountId: context.user.accountId }],
+        },
+      ],
+    },
   });
 };
 
@@ -20,13 +17,10 @@ export const serviceTypes = (parent, args, context) => {
       AND: [
         { deleted: false },
         {
-          OR: [
-            { accountId: 1 },
-            { accountId: context.user.accountId },
-          ]
-        }
-      ]
-    }
+          OR: [{ accountId: 1 }, { accountId: context.user.accountId }],
+        },
+      ],
+    },
   });
 };
 
@@ -34,8 +28,8 @@ export const serviceAccounts = (parent, args, context) => {
   return context.prisma.serviceAccount.findMany({
     where: {
       accountId: context.user.accountId,
-      deleted: false
-    }
+      deleted: false,
+    },
   });
 };
 
@@ -47,7 +41,7 @@ export const serviceAccount = (parent, args, context) => {
     deleted: false,
   };
   return context.prisma.serviceAccount.findFirst({
-    where: where
+    where: where,
   });
 };
 
@@ -56,16 +50,17 @@ export const servicesList = async (parent, args, context) => {
     AND: [
       { accountId: context.user.accountId },
       { deleted: false },
-      args.filter ? {
-        OR: [
-          { description: { contains: args.filter } },
-          { organization: { name: { contains: args.filter } } },
-          { serviceType: { name: { contains: args.filter } } },
-          { accountNumber: { contains: args.filter } },
-        ]
-      }
+      args.filter
+        ? {
+            OR: [
+              { description: { contains: args.filter } },
+              { organization: { name: { contains: args.filter } } },
+              { serviceType: { name: { contains: args.filter } } },
+              { accountNumber: { contains: args.filter } },
+            ],
+          }
         : {},
-    ]
+    ],
   };
 
   const serviceAccounts = await context.prisma.serviceAccount.findMany({
@@ -81,6 +76,6 @@ export const servicesList = async (parent, args, context) => {
   return {
     id: `serviceAccounts:${JSON.stringify(args)}`,
     serviceAccounts,
-    count
+    count,
   };
 };
