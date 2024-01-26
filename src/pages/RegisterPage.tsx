@@ -1,10 +1,36 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useMutation, gql } from '@apollo/client'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '@/contexts/AuthContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-const Register = () => {
+export const SIGNUP_MUTATION = gql`
+    mutation SignupMutation(
+        $nameFirst: String!
+        $nameLast: String!
+        $email: String!
+        $password: String!
+    ) {
+        signup(nameFirst: $nameFirst, nameLast: $nameLast, email: $email, password: $password) {
+            token
+            user {
+                id
+                externalId
+                nameFirst
+                nameLast
+                email
+                status
+                createdAt
+                person {
+                    externalId
+                }
+            }
+            personExternalId
+        }
+    }
+`
+
+export const RegisterPage: React.FC = () => {
     const { setAuthUser, setAuthToken } = useAuth()
     const navigate = useNavigate()
 
@@ -21,32 +47,7 @@ const Register = () => {
     const [emailError] = React.useState('')
     const [passwordError, setPasswordError] = React.useState('')
 
-    const SIGNUP_MUTATION = gql`
-        mutation SignupMutation(
-            $nameFirst: String!
-            $nameLast: String!
-            $email: String!
-            $password: String!
-        ) {
-            signup(nameFirst: $nameFirst, nameLast: $nameLast, email: $email, password: $password) {
-                token
-                user {
-                    externalId
-                    nameFirst
-                    nameLast
-                    email
-                    status
-                    createdAt
-                    person {
-                        externalId
-                    }
-                }
-                personExternalId
-            }
-        }
-    `
-
-    const [signup, { loading, error }] = useMutation(SIGNUP_MUTATION, {
+    const [signup, { data, loading, error }] = useMutation(SIGNUP_MUTATION, {
         variables: {
             nameFirst: formState.nameFirst,
             nameLast: formState.nameLast,
@@ -54,7 +55,7 @@ const Register = () => {
             password: formState.password,
         },
         onCompleted: ({ signup }) => {
-            // console.log('signup.onComplete, data: ', signup);
+            // console.log('signup.onComplete, data: ', signup)
             if (signup.token && signup.user) {
                 const authUser = {
                     ...signup.user,
@@ -69,7 +70,7 @@ const Register = () => {
         },
     })
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         if (formState.password !== formState.cpassword) {
             setPasswordError('Passwords do not match')
@@ -89,6 +90,8 @@ const Register = () => {
 
                         {loading && <div className="hidden">LOADING...</div>}
 
+                        {data && <div className="hidden">SUCCESS!</div>}
+
                         {error && (
                             <div
                                 className="flex p-4 mb-4 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800"
@@ -99,7 +102,7 @@ const Register = () => {
                                     className="text-red-500 text-lg mr-2"
                                 />
                                 <span className="sr-only">Sign Up Failed</span>
-                                <div>An Error occurred during sign up.</div>
+                                <div>An Error occurred during sign up. ${error.message}</div>
                             </div>
                         )}
 
@@ -244,5 +247,3 @@ const Register = () => {
         </section>
     )
 }
-
-export default Register

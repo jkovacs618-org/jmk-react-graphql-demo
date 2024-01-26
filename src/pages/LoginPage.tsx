@@ -1,11 +1,32 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useMutation, gql, ApolloError } from '@apollo/client'
-import { useAuth } from '../contexts/AuthContext'
+import { useMutation, gql } from '@apollo/client'
+import { useAuth } from '@/contexts/AuthContext'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { VITE_DEFAULT_EMAIL, VITE_DEFAULT_PASS } from '../setup'
+import { VITE_DEFAULT_EMAIL, VITE_DEFAULT_PASS } from '@/constants'
 
-const LoginPage: React.FC = () => {
+export const LOGIN_MUTATION = gql`
+    mutation LoginMutation($email: String!, $password: String!) {
+        login(email: $email, password: $password) {
+            token
+            user {
+                id
+                externalId
+                nameFirst
+                nameLast
+                email
+                status
+                createdAt
+                person {
+                    externalId
+                }
+            }
+            personExternalId
+        }
+    }
+`
+
+export const LoginPage: React.FC = () => {
     const { setAuthUser, setAuthToken } = useAuth()
     const [formError] = useState('')
     const navigate = useNavigate()
@@ -19,28 +40,7 @@ const LoginPage: React.FC = () => {
         password: VITE_DEFAULT_PASS,
     })
 
-    const LOGIN_MUTATION = gql`
-        mutation LoginMutation($email: String!, $password: String!) {
-            login(email: $email, password: $password) {
-                token
-                user {
-                    id
-                    externalId
-                    nameFirst
-                    nameLast
-                    email
-                    status
-                    createdAt
-                    person {
-                        externalId
-                    }
-                }
-                personExternalId
-            }
-        }
-    `
-
-    const [login, { loading, error }] = useMutation(LOGIN_MUTATION, {
+    const [login, { data, loading, error }] = useMutation(LOGIN_MUTATION, {
         variables: {
             email: formState.email,
             password: formState.password,
@@ -53,9 +53,6 @@ const LoginPage: React.FC = () => {
             setAuthUser(authUser)
             setAuthToken(login.token)
             navigate('/')
-        },
-        onError: (error: ApolloError) => {
-            console.error(error)
         },
     })
 
@@ -87,6 +84,8 @@ const LoginPage: React.FC = () => {
                         )}
 
                         {loading && <div className="hidden">LOADING...</div>}
+
+                        {data && <div className="hidden">LOGGED IN</div>}
 
                         {error && (
                             <div
@@ -183,5 +182,3 @@ const LoginPage: React.FC = () => {
         </section>
     )
 }
-
-export default LoginPage
