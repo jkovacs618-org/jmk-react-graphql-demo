@@ -140,7 +140,7 @@ const EventAddForm: React.FC = () => {
                             className="form-control"
                             name="title"
                             type="text"
-                            value={event?.title}
+                            value={event?.title ?? ''}
                             placeholder="Event Title"
                             onChange={(e) => {
                                 setEvent({ ...event, title: e.target.value } as Event)
@@ -159,7 +159,7 @@ const EventAddForm: React.FC = () => {
                             className="form-control"
                             name="location"
                             type="text"
-                            value={event?.location}
+                            value={event?.location ?? ''}
                             placeholder=""
                             onChange={(e) => {
                                 setEvent({ ...event, location: e.target.value } as Event)
@@ -176,7 +176,7 @@ const EventAddForm: React.FC = () => {
                             className="form-control"
                             name="startDate"
                             type="date"
-                            value={event?.startDate}
+                            value={event?.startDate ?? ''}
                             placeholder="Start Date"
                             onChange={(e) => {
                                 setEvent({ ...event, startDate: e.target.value } as Event)
@@ -193,7 +193,7 @@ const EventAddForm: React.FC = () => {
                             className="form-control"
                             name="endDate"
                             type="date"
-                            value={event?.endDate}
+                            value={event?.endDate ?? ''}
                             placeholder="End Date"
                             onChange={(e) => {
                                 setEvent({ ...event, endDate: e.target.value } as Event)

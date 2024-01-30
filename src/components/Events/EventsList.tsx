@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { observer } from 'mobx-react'
 import { Table } from 'flowbite-react'
 import { Link } from 'react-router-dom'
@@ -10,6 +10,7 @@ import { Event } from '@/interfaces/interfaces'
 
 const EventsList: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState('')
+    const searchInputRef = useRef<HTMLInputElement>(null)
 
     const query = gql`
         query GetEvents($filter: String) {
@@ -60,7 +61,9 @@ const EventsList: React.FC = () => {
     const searchClear = () => {
         setSearchQuery('')
         executeSearch()
-        document.getElementById('eventsListSearchInput')?.focus()
+        if (searchInputRef.current) {
+            searchInputRef.current.focus()
+        }
     }
 
     const deleteModelQuery = gql`
@@ -123,7 +126,7 @@ const EventsList: React.FC = () => {
                 <form onSubmit={searchSubmit}>
                     <div className="relative inline-block">
                         <input
-                            id="eventsListSearchInput"
+                            ref={searchInputRef}
                             type="search"
                             value={searchQuery}
                             placeholder="Search..."
@@ -159,7 +162,7 @@ const EventsList: React.FC = () => {
                 </div>
             </div>
 
-            {loading && <div className="hidden">Loading Events...</div>}
+            {loading && <div>Loading...</div>}
 
             {error && <div>Error: ${error.message}</div>}
 

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { observer } from 'mobx-react'
 import { Table } from 'flowbite-react'
 import { Link } from 'react-router-dom'
@@ -10,6 +10,7 @@ import { ServiceAccount } from '@/interfaces/interfaces'
 
 const ServicesList: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState('')
+    const searchInputRef = useRef<HTMLInputElement>(null)
 
     const query = gql`
         query GetServiceAccounts($filter: String) {
@@ -68,7 +69,9 @@ const ServicesList: React.FC = () => {
     const searchClear = () => {
         setSearchQuery('')
         executeSearch()
-        document.getElementById('servicesListSearchInput')?.focus()
+        if (searchInputRef.current) {
+            searchInputRef.current.focus()
+        }
     }
 
     const maskAccountNumber = (str: string | null) => {
@@ -143,7 +146,7 @@ const ServicesList: React.FC = () => {
                 <form onSubmit={searchSubmit}>
                     <div className="relative inline-block">
                         <input
-                            id="servicesListSearchInput"
+                            ref={searchInputRef}
                             type="search"
                             value={searchQuery}
                             placeholder="Search..."
@@ -179,7 +182,7 @@ const ServicesList: React.FC = () => {
                 </div>
             </div>
 
-            {loading && <div className="hidden">Loading Accounts...</div>}
+            {loading && <div>Loading...</div>}
 
             {error && <div>Error: ${error.message}</div>}
 

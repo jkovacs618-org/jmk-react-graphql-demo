@@ -1,4 +1,4 @@
-// Note: Vite provides import.meta, but Jest cannot use it, so must mock src/contants.ts in setupTests.ts.
+// Note: Vite provides import.meta, but Jest cannot use it, so must mock src/constants.ts in src/tests/setupTests.ts.
 const {
     MODE: ENVIRONMENT,
     VITE_GRAPHQL_BASE_URL,

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { observer } from 'mobx-react'
 import { Table } from 'flowbite-react'
 import { Link } from 'react-router-dom'
@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/AuthContext'
 
 const PersonsList: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState('')
+    const searchInputRef = useRef<HTMLInputElement>(null)
     const { authUser } = useAuth()
 
     const query = gql`
@@ -68,7 +69,9 @@ const PersonsList: React.FC = () => {
     const searchClear = () => {
         setSearchQuery('')
         executeSearch()
-        document.getElementById('personsListSearchInput')?.focus()
+        if (searchInputRef.current) {
+            searchInputRef.current.focus()
+        }
     }
 
     const handleClickDelete = (e: React.MouseEvent, personExternalId: string) => {
@@ -162,7 +165,7 @@ const PersonsList: React.FC = () => {
                 <form onSubmit={searchSubmit}>
                     <div className="relative inline-block">
                         <input
-                            id="personsListSearchInput"
+                            ref={searchInputRef}
                             type="search"
                             value={searchQuery}
                             placeholder="Search..."
@@ -198,7 +201,7 @@ const PersonsList: React.FC = () => {
                 </div>
             </div>
 
-            {loading && <div className="hidden">Loading...</div>}
+            {loading && <div>Loading Family...</div>}
 
             {error && <div>Error: ${error.message}</div>}
 
