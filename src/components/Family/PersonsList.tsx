@@ -5,52 +5,25 @@ import { Link } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import dayjs from 'dayjs'
 import Breadcrumbs from '@/components/Layout/Content/Breadcrumbs'
-import { ApolloError, gql, useLazyQuery, useMutation } from '@apollo/client'
+import AlertBox from '@/components/Shared/AlertBox'
+import { useLazyQuery, useMutation } from '@apollo/client'
 import { Person } from '@/interfaces/interfaces'
 import { useAuth } from '@/contexts/AuthContext'
+import { getPersonsQuery, deletePersonQuery } from '@/services/PersonsService'
 
 const PersonsList: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState('')
+    const [deleteError, setDeleteError] = useState('')
     const searchInputRef = useRef<HTMLInputElement>(null)
     const { authUser } = useAuth()
 
-    const query = gql`
-        query GetPersons($filter: String) {
-            personsList(filter: $filter) {
-                id
-                persons {
-                    externalId
-                    nameFirst
-                    nameMiddle
-                    nameLast
-                    suffix
-                    gender
-                    birthDate
-                    deathDate
-                    person2Relationship {
-                        type
-                    }
-                }
-                count
-            }
-            organizations {
-                externalId
-                name
-            }
-            serviceTypes {
-                externalId
-                name
-            }
-        }
-    `
-    const [executeSearch, { data, loading, error }] = useLazyQuery(query)
+    const [executeSearch, { data, loading, error }] = useLazyQuery(getPersonsQuery)
 
     const loadListAsync = useCallback(async () => {
         executeSearch()
     }, [executeSearch])
 
     useEffect(() => {
-        // console.debug('PersonsList.useEffect');
         loadListAsync()
         return () => {
             //console.debug('PersonsList cleanup');
@@ -59,6 +32,7 @@ const PersonsList: React.FC = () => {
 
     const searchSubmit = (e: React.FormEvent) => {
         e.preventDefault()
+        setDeleteError('')
         executeSearch({
             variables: {
                 filter: searchQuery,
@@ -68,52 +42,35 @@ const PersonsList: React.FC = () => {
 
     const searchClear = () => {
         setSearchQuery('')
+        setDeleteError('')
         executeSearch()
         if (searchInputRef.current) {
             searchInputRef.current.focus()
         }
     }
 
-    const handleClickDelete = (e: React.MouseEvent, personExternalId: string) => {
+    const handleClickDelete = (e: React.MouseEvent, person: Person) => {
         e.preventDefault()
+        const personExternalId = person.externalId
+        const fullName = person.nameFirst + ' ' + person.nameLast
         if (personExternalId !== '') {
             if (authUser?.personExternalId == personExternalId) {
                 alert('Cannot Remove Self')
             } else {
-                if (confirm('Are you sure?')) {
+                if (confirm(`Are you sure you want to remove ${fullName}?`)) {
                     executeDelete({ variables: { externalId: personExternalId } })
                 }
             }
         }
     }
 
-    const deleteModelQuery = gql`
-        mutation DeletePersonMutation($externalId: String!) {
-            deletePerson(externalId: $externalId) {
-                externalId
-                nameFirst
-                nameMiddle
-                nameLast
-                gender
-                birthDate
-                deathDate
-                updatedAt
-                person2Relationship {
-                    type
-                }
-            }
-        }
-    `
-
-    const [executeDelete] = useMutation(deleteModelQuery, {
-        variables: {
-            // Passed externalId in executeDelete call below.
-        },
-        onError: (error: ApolloError) => {
-            console.error('Person Delete Failed: error: ', error)
+    const [executeDelete] = useMutation(deletePersonQuery, {
+        onError: () => {
+            setDeleteError('Failed to remove the person. Please try again later.')
         },
         onCompleted: (data) => {
             console.debug('Person Deleted: data:', data)
+            setDeleteError('')
             executeSearch({
                 variables: {
                     filter: searchQuery,
@@ -146,6 +103,8 @@ const PersonsList: React.FC = () => {
 
     return (
         <>
+            {deleteError && <AlertBox message={deleteError} onClose={() => setDeleteError('')} />}
+
             <Breadcrumbs links={breadcrumbLinks} />
 
             <div className="flex gap-4">
@@ -201,7 +160,7 @@ const PersonsList: React.FC = () => {
                 </div>
             </div>
 
-            {loading && <div>Loading Family...</div>}
+            {loading && <div>Loading...</div>}
 
             {error && <div>Error: ${error.message}</div>}
 
@@ -251,7 +210,7 @@ const PersonsList: React.FC = () => {
                                             <Link
                                                 to="#"
                                                 onClick={(e) => {
-                                                    handleClickDelete(e, person.externalId ?? '')
+                                                    handleClickDelete(e, person)
                                                 }}
                                                 title={
                                                     person.externalId === authUser?.personExternalId

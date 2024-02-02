@@ -10,9 +10,9 @@ const errorLink = onError(({ operation, graphQLErrors, networkError }) => {
     console.log('Apollo Error: operation:', operation.operationName)
 
     if (networkError) {
-        console.log('GraphQL server: A network error has been found: ', networkError)
+        console.error('GraphQL server: A network error has been found: ', networkError)
     } else {
-        console.log('GraphQL server: There has been an error: ', graphQLErrors)
+        console.error('GraphQL server: There has been an error: ', graphQLErrors)
     }
 })
 

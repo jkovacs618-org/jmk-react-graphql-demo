@@ -1,48 +1,27 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useLazyQuery, useMutation } from '@apollo/client'
 import { observer } from 'mobx-react'
 import { Table } from 'flowbite-react'
 import { Link } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import dayjs from 'dayjs'
 import Breadcrumbs from '@/components/Layout/Content/Breadcrumbs'
-import { useLazyQuery, gql, useMutation, ApolloError } from '@apollo/client'
+import AlertBox from '@/components/Shared/AlertBox'
 import { Event } from '@/interfaces/interfaces'
+import { deleteEventQuery, getEventsQuery } from '@/services/EventsService'
 
 const EventsList: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState('')
+    const [deleteError, setDeleteError] = useState('')
     const searchInputRef = useRef<HTMLInputElement>(null)
 
-    const query = gql`
-        query GetEvents($filter: String) {
-            eventsList(filter: $filter) {
-                id
-                events {
-                    externalId
-                    title
-                    location
-                    startDate
-                    endDate
-                    calendar {
-                        externalId
-                        title
-                    }
-                }
-                count
-            }
-            calendars {
-                externalId
-                title
-            }
-        }
-    `
-    const [executeSearch, { data, loading, error }] = useLazyQuery(query)
+    const [executeSearch, { data, loading, error }] = useLazyQuery(getEventsQuery)
 
     const loadListAsync = useCallback(async () => {
         executeSearch()
     }, [executeSearch])
 
     useEffect(() => {
-        // console.debug('EventsList.useEffect');
         loadListAsync()
         return () => {
             //console.debug('EventsList cleanup');
@@ -51,6 +30,7 @@ const EventsList: React.FC = () => {
 
     const searchSubmit = (e: React.FormEvent) => {
         e.preventDefault()
+        setDeleteError('')
         executeSearch({
             variables: {
                 filter: searchQuery,
@@ -60,35 +40,32 @@ const EventsList: React.FC = () => {
 
     const searchClear = () => {
         setSearchQuery('')
+        setDeleteError('')
         executeSearch()
         if (searchInputRef.current) {
             searchInputRef.current.focus()
         }
     }
 
-    const deleteModelQuery = gql`
-        mutation DeleteEventMutation($externalId: String!) {
-            deleteEvent(externalId: $externalId) {
-                externalId
-                title
-                location
-                startDate
-                endDate
-                updatedAt
-                calendar {
-                    externalId
-                    title
-                }
-            }
+    const handleClickDelete = (e: React.MouseEvent, event: Event) => {
+        e.preventDefault()
+        if (
+            confirm(
+                `Are you sure you want to remove the event${event.title ? ': ' + event.title : ''}?`
+            )
+        ) {
+            executeDelete({
+                variables: {
+                    externalId: event.externalId!,
+                },
+            })
         }
-    `
+    }
 
-    const [executeDelete] = useMutation(deleteModelQuery, {
-        variables: {
-            // Passed externalId in executeDelete call below.
-        },
-        onError: (error: ApolloError) => {
-            console.error('Event Delete Failed: error: ', error)
+    const [executeDelete] = useMutation(deleteEventQuery, {
+        onError: () => {
+            // console.error('Event Delete Failed: error: ', error)
+            setDeleteError('Failed to remove the event. Please try again later.')
         },
         onCompleted: (data) => {
             console.debug('Event Deleted: data:', data)
@@ -107,6 +84,8 @@ const EventsList: React.FC = () => {
 
     return (
         <>
+            {deleteError && <AlertBox message={deleteError} onClose={() => setDeleteError('')} />}
+
             <Breadcrumbs links={breadcrumbLinks} />
 
             <div className="flex gap-4">
@@ -218,15 +197,7 @@ const EventsList: React.FC = () => {
                                             </Link>
                                             <Link
                                                 to="#"
-                                                onClick={() => {
-                                                    if (confirm('Are you sure?')) {
-                                                        executeDelete({
-                                                            variables: {
-                                                                externalId: event.externalId!,
-                                                            },
-                                                        })
-                                                    }
-                                                }}
+                                                onClick={(e) => handleClickDelete(e, event)}
                                             >
                                                 <FontAwesomeIcon
                                                     icon="trash-can"

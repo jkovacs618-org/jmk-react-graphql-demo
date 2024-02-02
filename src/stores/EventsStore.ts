@@ -29,6 +29,14 @@ class EventsStore {
     setCalendars = (newCalendars: Calendar[]) => {
         this.calendars = newCalendars
     }
+
+    getDefaultCalendarExternalId = (): string => {
+        const defaultCalendar = this.calendars.find((calendar: Calendar) => calendar.isDefault)
+        if (defaultCalendar) {
+            return defaultCalendar.externalId ?? ''
+        }
+        return ''
+    }
 }
 
 export default createContext(new EventsStore())

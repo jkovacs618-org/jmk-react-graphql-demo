@@ -49,9 +49,6 @@ button {
     cursor: pointer;
     transition: border-color 0.25s;
 }
-button:hover {
-    /* border-color: #0284c7; */
-}
 button:focus,
 button:focus-visible {
     outline: 4px auto -webkit-focus-ring-color;
@@ -62,7 +59,7 @@ button:focus-visible {
         color: #213547;
         background-color: #ffffff;
     }
-    a1:hover {
+    a:hover {
         color: #0284c7;
     }
     button {
@@ -88,4 +85,22 @@ input[type='search']::-webkit-search-cancel-button,
 input[type='search']::-webkit-search-results-button,
 input[type='search']::-webkit-search-results-decoration {
     display: none;
+}
+
+.form-control {
+    @apply block
+    border
+    bg-gray-50
+    border-gray-300
+    text-gray-900
+    rounded-lg
+    w-full
+    p-2.5
+    dark:bg-gray-700
+    dark:border-gray-600
+    dark:placeholder-gray-400
+    dark:text-white;
+    &:disabled {
+        @apply bg-gray-200;
+    }
 }

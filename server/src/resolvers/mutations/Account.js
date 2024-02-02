@@ -104,6 +104,8 @@ export async function login(parent, args, context) {
     throw new Error('Invalid user record');
   }
 
+  user.person = person;
+
   const token = jwt.sign({ userId: user.id }, APP_SECRET);
 
   return {

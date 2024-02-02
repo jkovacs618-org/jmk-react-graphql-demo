@@ -1,56 +1,30 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useLazyQuery, useMutation } from '@apollo/client'
 import { observer } from 'mobx-react'
 import { Table } from 'flowbite-react'
 import { Link } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import dayjs from 'dayjs'
 import Breadcrumbs from '@/components/Layout/Content/Breadcrumbs'
-import { ApolloError, gql, useLazyQuery, useMutation } from '@apollo/client'
+import AlertBox from '@/components/Shared/AlertBox'
 import { ServiceAccount } from '@/interfaces/interfaces'
+import {
+    getServiceAccountsQuery,
+    deleteServiceAccountQuery,
+} from '@/services/ServiceAccountsService'
 
 const ServicesList: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState('')
+    const [deleteError, setDeleteError] = useState('')
     const searchInputRef = useRef<HTMLInputElement>(null)
 
-    const query = gql`
-        query GetServiceAccounts($filter: String) {
-            servicesList(filter: $filter) {
-                id
-                serviceAccounts {
-                    externalId
-                    description
-                    startDate
-                    endDate
-                    accountNumber
-                    organization {
-                        externalId
-                        name
-                    }
-                    serviceType {
-                        externalId
-                        name
-                    }
-                }
-                count
-            }
-            organizations {
-                externalId
-                name
-            }
-            serviceTypes {
-                externalId
-                name
-            }
-        }
-    `
-    const [executeSearch, { data, loading, error }] = useLazyQuery(query)
+    const [executeSearch, { data, loading, error }] = useLazyQuery(getServiceAccountsQuery)
 
     const loadListAsync = useCallback(async () => {
         executeSearch()
     }, [executeSearch])
 
     useEffect(() => {
-        // console.debug('ServicesList.useEffect');
         loadListAsync()
         return () => {
             //console.debug('ServicesList cleanup');
@@ -59,6 +33,7 @@ const ServicesList: React.FC = () => {
 
     const searchSubmit = (e: React.FormEvent) => {
         e.preventDefault()
+        setDeleteError('')
         executeSearch({
             variables: {
                 filter: searchQuery,
@@ -68,6 +43,7 @@ const ServicesList: React.FC = () => {
 
     const searchClear = () => {
         setSearchQuery('')
+        setDeleteError('')
         executeSearch()
         if (searchInputRef.current) {
             searchInputRef.current.focus()
@@ -82,33 +58,25 @@ const ServicesList: React.FC = () => {
         return '-'
     }
 
-    const deleteModelQuery = gql`
-        mutation DeleteServiceAccountMutation($externalId: String!) {
-            deleteServiceAccount(externalId: $externalId) {
-                externalId
-                description
-                accountNumber
-                startDate
-                endDate
-                updatedAt
-                organization {
-                    externalId
-                    name
-                }
-                serviceType {
-                    externalId
-                    name
-                }
-            }
+    const handleClickDelete = (e: React.MouseEvent, serviceAccount: ServiceAccount) => {
+        e.preventDefault()
+        if (
+            confirm(
+                `Are you sure you want to remove the account${serviceAccount.organization ? ' for ' + serviceAccount.organization.name : ''}?`
+            )
+        ) {
+            executeDelete({
+                variables: {
+                    externalId: serviceAccount.externalId!,
+                },
+            })
         }
-    `
+    }
 
-    const [executeDelete] = useMutation(deleteModelQuery, {
-        variables: {
-            // Passed externalId in executeDelete call below.
-        },
-        onError: (error: ApolloError) => {
-            console.error('Service Delete Failed: error: ', error)
+    const [executeDelete] = useMutation(deleteServiceAccountQuery, {
+        onError: () => {
+            // console.error('Service Delete Failed: error: ', error)
+            setDeleteError('Failed to remove the account. Please try again later.')
         },
         onCompleted: (data) => {
             console.debug('Service Deleted: data:', data)
@@ -127,6 +95,8 @@ const ServicesList: React.FC = () => {
 
     return (
         <>
+            {deleteError && <AlertBox message={deleteError} onClose={() => setDeleteError('')} />}
+
             <Breadcrumbs links={breadcrumbLinks} />
 
             <div className="flex gap-4">
@@ -266,16 +236,9 @@ const ServicesList: React.FC = () => {
                                                 </Link>
                                                 <Link
                                                     to="#"
-                                                    onClick={() => {
-                                                        if (confirm('Are you sure?')) {
-                                                            executeDelete({
-                                                                variables: {
-                                                                    externalId:
-                                                                        serviceAccount.externalId!,
-                                                                },
-                                                            })
-                                                        }
-                                                    }}
+                                                    onClick={(e) =>
+                                                        handleClickDelete(e, serviceAccount)
+                                                    }
                                                 >
                                                     <FontAwesomeIcon
                                                         icon="trash-can"
