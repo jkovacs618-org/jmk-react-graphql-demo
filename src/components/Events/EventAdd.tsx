@@ -1,30 +1,42 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
-import EventsStore from '@/stores/EventsStore'
+import { useNavigate } from 'react-router'
+import { useForm, SubmitHandler } from 'react-hook-form'
+import { useLazyQuery, useMutation } from '@apollo/client'
 import { observer } from 'mobx-react'
-import { Label, Select, TextInput } from 'flowbite-react'
-import { useNavigate } from 'react-router-dom'
+import { Label } from 'flowbite-react'
 import Breadcrumbs from '@/components/Layout/Content/Breadcrumbs'
 import SubmitButton from '@/components/Shared/SubmitButton'
 import CancelButton from '@/components/Shared/CancelButton'
-import { Calendar, Event } from '@/interfaces/interfaces'
-import { ApolloError, gql, useLazyQuery, useMutation } from '@apollo/client'
+import { createModelQuery, getCalendarsQuery } from '@/services/EventsService'
+import EventsStore from '@/stores/EventsStore'
+import AlertBox from '@/components/Shared/AlertBox'
+
+interface FormValues {
+    title: string
+    location: string
+    startDate: string
+    endDate: string
+    calendarExternalId: string
+    newCalendarTitle: string
+}
 
 const EventAddForm: React.FC = () => {
-    const [event, setEvent] = useState<Event | null>(null)
-    const [newCalendarTitleError, setNewCalendarTitleError] = React.useState('')
+    const [formError, setFormError] = useState('')
     const eventsStore = useContext(EventsStore)
-    const { calendars } = eventsStore
     const navigate = useNavigate()
 
-    const getCalendarsQuery = gql`
-        query GetCalendars {
-            calendars {
-                externalId
-                title
-                isDefault
-            }
-        }
-    `
+    const {
+        register,
+        formState: { errors },
+        handleSubmit,
+        setFocus,
+        watch,
+        reset,
+    } = useForm<FormValues>()
+    // console.debug('useForm errors: ', errors)
+
+    const watchCalendarExternalId = watch('calendarExternalId')
+
     const [executeLoad] = useLazyQuery(getCalendarsQuery)
 
     const loadCalendarsAsync = useCallback(async () => {
@@ -34,84 +46,49 @@ const EventAddForm: React.FC = () => {
                 onCompleted: (data) => {
                     if (typeof data.calendars !== 'undefined' && data.calendars) {
                         eventsStore.setCalendars(data.calendars)
-                        const defaultCalendar = data.calendars.find(
-                            (calendar: Calendar) => calendar.isDefault
-                        )
-                        if (defaultCalendar) {
-                            setEvent({
-                                ...event,
-                                calendarExternalId: defaultCalendar.externalId,
-                            } as Event)
-                        }
+
+                        const defaultCalendarExternalId = eventsStore.getDefaultCalendarExternalId()
+                        reset({ calendarExternalId: defaultCalendarExternalId })
                     }
                 },
             })
         } catch (error) {
             console.error(error)
         }
-    }, [executeLoad, eventsStore])
+    }, [executeLoad, eventsStore, reset])
 
     useEffect(() => {
-        // On component load, Reset the inputs:
+        setFocus('title')
         loadCalendarsAsync()
-        setEvent({
-            title: '',
-            location: '',
-            startDate: '',
-            endDate: '',
-            calendarExternalId: '',
-        } as Event)
         return () => {
-            // console.log('EventAddForm cleanup');
+            // console.debug('EventAddForm cleanup');
         }
-    }, [loadCalendarsAsync])
-
-    const createModelQuery = gql`
-        mutation CreateEventMutation($event: EventInput!) {
-            createEvent(event: $event) {
-                externalId
-                title
-                location
-                startDate
-                endDate
-                createdAt
-                calendar {
-                    externalId
-                    title
-                }
-            }
-        }
-    `
+    }, [loadCalendarsAsync, setFocus])
 
     const [executeCreate] = useMutation(createModelQuery, {
-        variables: {
-            event: {
-                calendarExternalId: event?.calendarExternalId,
-                newCalendarTitle: event?.newCalendarTitle,
-                title: event?.title,
-                location: event?.location,
-                startDate: event?.startDate,
-                endDate: event?.endDate,
-            },
-        },
-        onError: (error: ApolloError) => {
-            console.error('Event Create Failed: error: ', error)
-            navigate('/events')
+        onError: () => {
+            setFormError('Failed to add the event. Please try again later.')
         },
         onCompleted: (data) => {
-            console.debug('Event Created: data:', data)
+            console.debug('Event created: data:', data)
             navigate('/events')
         },
     })
 
-    const submitForm = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        if (event?.calendarExternalId === 'NEW' && event.newCalendarTitle === '') {
-            setNewCalendarTitleError('Please enter a title')
-        } else {
-            setNewCalendarTitleError('')
-        }
-        executeCreate()
+    const onSubmit: SubmitHandler<FormValues> = async (data: FormValues) => {
+        // console.debug(data)
+        await executeCreate({
+            variables: {
+                event: {
+                    title: data.title,
+                    location: data.location,
+                    startDate: data.startDate,
+                    endDate: data.endDate,
+                    calendarExternalId: data.calendarExternalId,
+                    newCalendarTitle: data.newCalendarTitle,
+                },
+            },
+        })
     }
 
     const breadcrumbLinks = [
@@ -126,132 +103,123 @@ const EventAddForm: React.FC = () => {
 
             <h2 className="text-3xl text-slate-600 font-bold">New Event</h2>
 
-            <form
-                onSubmit={(e) => {
-                    submitForm(e)
-                }}
-            >
+            {formError && <AlertBox message={formError} onClose={() => setFormError('')} />}
+
+            <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="form-group">
                     <div className="mb-2">
                         <div className="mb-1 block">
-                            <Label htmlFor="title" value="Title *" />
+                            <Label htmlFor="title" value="Event Title *" />
                         </div>
-                        <TextInput
-                            className="form-control"
-                            name="title"
-                            type="text"
-                            value={event?.title ?? ''}
-                            placeholder="Event Title"
-                            onChange={(e) => {
-                                setEvent({ ...event, title: e.target.value } as Event)
-                            }}
-                            sizing="sm"
-                            required
-                            autoFocus
-                        />
+                        <div>
+                            <input
+                                {...register('title', { required: true, maxLength: 250 })}
+                                defaultValue=""
+                                className="form-control"
+                                aria-invalid={errors.title ? 'true' : 'false'}
+                            />
+                            {errors.title?.type === 'required' && (
+                                <span role="alert" className="text-red-500 text-sm font-bold">
+                                    Event title is required
+                                </span>
+                            )}
+                        </div>
                     </div>
 
                     <div className="mb-2">
                         <div className="mb-1 block">
                             <Label htmlFor="location" value="Location" />
                         </div>
-                        <TextInput
-                            className="form-control"
-                            name="location"
-                            type="text"
-                            value={event?.location ?? ''}
-                            placeholder=""
-                            onChange={(e) => {
-                                setEvent({ ...event, location: e.target.value } as Event)
-                            }}
-                            sizing="sm"
-                        />
+                        <div>
+                            <input
+                                {...register('location')}
+                                defaultValue=""
+                                className="form-control"
+                            />
+                        </div>
                     </div>
 
                     <div className="mb-2">
                         <div className="mb-1 block">
                             <Label htmlFor="startDate" value="Start" />
                         </div>
-                        <TextInput
-                            className="form-control"
-                            name="startDate"
-                            type="date"
-                            value={event?.startDate ?? ''}
-                            placeholder="Start Date"
-                            onChange={(e) => {
-                                setEvent({ ...event, startDate: e.target.value } as Event)
-                            }}
-                            sizing="sm"
-                        />
+                        <div>
+                            <input
+                                type="date"
+                                {...register('startDate')}
+                                defaultValue=""
+                                className="form-control"
+                            />
+                        </div>
                     </div>
 
                     <div className="mb-2">
                         <div className="mb-1 block">
                             <Label htmlFor="endDate" value="End" />
                         </div>
-                        <TextInput
-                            className="form-control"
-                            name="endDate"
-                            type="date"
-                            value={event?.endDate ?? ''}
-                            placeholder="End Date"
-                            onChange={(e) => {
-                                setEvent({ ...event, endDate: e.target.value } as Event)
-                            }}
-                            sizing="sm"
-                        />
+                        <div>
+                            <input
+                                type="date"
+                                {...register('endDate')}
+                                defaultValue=""
+                                className="form-control"
+                            />
+                        </div>
                     </div>
 
                     <div className="mb-2">
                         <div className="mb-1 block">
                             <Label htmlFor="calendar" value="Calendar *" />
                         </div>
-                        <Select
-                            className="form-control"
-                            name="calendarExternalId"
-                            value={event?.calendarExternalId ?? ''}
-                            onChange={(e) => {
-                                setEvent({ ...event, calendarExternalId: e.target.value } as Event)
-                            }}
-                            sizing="sm"
-                            required
-                        >
-                            <option value="">Select...</option>
-                            {calendars.map((calendar) => {
-                                return (
-                                    <option key={calendar.externalId} value={calendar.externalId}>
-                                        {calendar.title}
-                                    </option>
-                                )
-                            })}
-                            <option key="NEW" value="NEW">
-                                Add New
-                            </option>
-                        </Select>
+                        <div>
+                            <select
+                                {...register('calendarExternalId', { required: true })}
+                                className="form-control"
+                            >
+                                <option value="">Select...</option>
+                                {eventsStore.calendars.map((calendar) => {
+                                    return (
+                                        <option
+                                            key={calendar.externalId}
+                                            value={calendar.externalId}
+                                        >
+                                            {calendar.title}
+                                        </option>
+                                    )
+                                })}
+                                <option key="NEW" value="NEW">
+                                    Add New
+                                </option>
+                            </select>
+                            {errors.calendarExternalId?.type === 'required' && (
+                                <span role="alert" className="text-red-500 text-sm font-bold">
+                                    Please select a calendar
+                                </span>
+                            )}
+                        </div>
                     </div>
 
-                    {event && event.calendarExternalId === 'NEW' && (
+                    {watchCalendarExternalId === 'NEW' && (
                         <div className="mb-2">
                             <div className="mb-1 block">
                                 <Label htmlFor="newCalendarTitle" value="New Calendar Title" />
                             </div>
-                            <TextInput
+                            <input
+                                {...register('newCalendarTitle', {
+                                    validate: (value, formValues) => {
+                                        if (formValues.calendarExternalId === 'NEW') {
+                                            return value !== ''
+                                        }
+                                        return false
+                                    },
+                                })}
+                                defaultValue=""
                                 className="form-control"
-                                name="newCalendarTitle"
-                                type="text"
-                                value={event.newCalendarTitle ?? ''}
-                                placeholder=""
-                                onChange={(e) => {
-                                    setEvent({
-                                        ...event,
-                                        newCalendarTitle: e.target.value,
-                                    } as Event)
-                                }}
-                                sizing="sm"
-                                required
                             />
-                            {newCalendarTitleError && (
-                                <p className="text-sm text-red-600">{newCalendarTitleError}</p>
+                            {errors.newCalendarTitle?.type === 'validate' && (
+                                <span role="alert" className="text-red-500 text-sm font-bold">
+                                    Please enter a calendar title
+                                </span>
                             )}
                         </div>
                     )}

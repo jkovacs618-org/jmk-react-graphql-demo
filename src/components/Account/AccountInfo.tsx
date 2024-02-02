@@ -5,6 +5,8 @@ import { useAuth } from '@/contexts/AuthContext'
 const AccountInfo: React.FC = () => {
     const { authUser } = useAuth()
 
+    console.log('authUser: ', authUser)
+
     return authUser ? (
         <div className="block p-8 bg-white border border-gray-200 shadow-xl rounded-lg shadowdark:border-gray-700">
             <h5 className="mb-4 text-2xl font-bold tracking-tight">
