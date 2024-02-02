@@ -100,7 +100,7 @@ input[type='search']::-webkit-search-results-decoration {
     dark:border-gray-600
     dark:placeholder-gray-400
     dark:text-white;
-    &:disabled {
-        @apply bg-gray-200;
-    }
+}
+.form-control:disabled {
+    @apply bg-gray-200;
 }
