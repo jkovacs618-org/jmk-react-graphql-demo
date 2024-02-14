@@ -1,13 +1,13 @@
-# Demo app for ReactJS and Apollo GraphQL
+# Demo app for React, TypeScript, Node.js and Apollo GraphQL
 
-This web application is a tool to organize personal data such as Events, Accounts for services, and Family members.  It demonstrates a fully-working app with React components using an Apollo GraphQL server as the backend, supporting Lists and CRUD operations with nested relational data.
+This web application demonstrates a fully-working app with React JS and TypeScript for the front-end, and Node.js, Apollo GraphQL server, and Prisma ORM for the backend. The app allows for organizing personal data such as Events, Accounts for services, and Family members, supporting Lists and CRUD operations with nested relational data.
 
-There is a Demo user to login with, seeded with test data, and supports creating a new account and adding/editing/removing records. The data is persisted to a SQLite database (serverless, file-based) so that subsequent loads of the GraphQL server and web app will recall the local data.
+Follow the instructions below to set up the project locally without any server dependencies. There is a Demo user to login with, seeded with test data, and supports creating a new account and adding/editing/removing records. The data is persisted to a SQLite database (serverless, file-based) so that subsequent loads of the GraphQL server and web app will recall the local data.
 
 Technologies used:
 
-* Front-end: React, TypeScript, Apollo Client (GraphQL), MobX (store), Vite, Yarn
-* Back-end: Apollo GraphQL Server, Prisma (ORM), SQLite (file DB), Yarn
+* Front-end: React, TypeScript, Apollo GraphQL Client, MobX (store), Vite, Yarn
+* Back-end: Apollo GraphQL Server, Node.js, Prisma (ORM), SQLite (file DB), Yarn
 * UI/Styles: Tailwind CSS, Flowbite, FontAwesome
 * Testing: Jest, ts-jest, React Testing Library, Apollo Client mocks
 
